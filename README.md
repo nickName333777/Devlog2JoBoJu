@@ -778,8 +778,7 @@ docker compose down
 - `/mnt/user-data/uploads/boards/` - 게시글 이미지
 
 **DB 초기화:**
-- `/init_scripts/init_PDB_XEPDB1.sql` - 회원 테이블, 게시판 테이블
-- `/init_scripts/init_chatbot.sql` - 챗봇 테이블 (CB_SESSION, CB_TOKEN_USAGE)
+- `/init_scripts/init_PDB_XEPDB1.sql` - 회원 테이블, 게시판 테이블, 챗봇 테이블 (CB_SESSION, CB_TOKEN_USAGE)
 
 **환경 설정:**
 - `.env` - 환경 변수 (이미지 경로 설정 포함)
