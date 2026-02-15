@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}자유게시판 - 제이비제이 JoBoJu{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for(request, 'static', path='/css/freeboardList.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- 게시판 헤더 -->
+    <div class="board-header">
+        <h1>자유게시판</h1>
+        <p class="board-description">자유롭게 소통하는 커뮤니티 공간입니다</p>
+    </div>
+
+
+    <!-- 검색 및 정렬 -->
+    <div class="board-controls">
+        <form method="get" action="{{ url_for(request, 'board_list') }}" class="search-box">
+            <select name="search_type" class="search-type" id="searchType">
+                <option value="title" {% if search_type == 'title' %}selected{% endif %}>제목</option>
+                <option value="content" {% if search_type == 'content' %}selected{% endif %}>내용</option>
+                <option value="author" {% if search_type == 'author' %}selected{% endif %}>작성자</option>
+                <option value="all" {% if search_type == 'all' %}selected{% endif %}>전체</option>
+            </select>
+            <input type="text" name="keyword" class="search-input" id="searchKeyword" placeholder="검색어를 입력하세요" value="{{ keyword }}">
+            <input type="hidden" name="sort_by" class="sort-input" id="sortBy" value="{{ sort_by }}">
+            <button type="submit" class="btn-search" id="searchBtn">검색</button>
+        </form>
+
+        <div class="sort-box">
+            <select id="sortSelect" class="sort-select" onchange="changeSort(this.value)">
+                <option value="recent" {% if sort_by == 'recent' %}selected{% endif %}>최신순</option>
+                <option value="views" {% if sort_by == 'views' %}selected{% endif %}>조회수순</option>
+                <option value="likes" {% if sort_by == 'likes' %}selected{% endif %}>좋아요순</option>
+            </select>
+        </div>
+
+        {% if current_user %}
+        <!-- {  % if current_user is defined or current_user %  } -->
+        <a href="{{ url_for(request, 'board_write_page') }}" class="btn-write" id="writeBtn">글쓰기</a>
+        {% endif %}
+    </div>
+
+
+    <!-- 게시글 목록 -->
+    <div class="board-list" id="boardList">
+
+        {% if board_list %}
+        <!-- Spring Boot(Thymeleaf): ${board_list}로 출력 
+             FastAPI(Jinja2): {{ board_list }}로 출력해서 화면에서 확인 -->
+        <!-- <p>{{ board_list }}</p>    -->
+        <!-- board_list의 한 item에 들어있는 attributes는 'board', 'thumbnail', 'like_count', 'comment_count' -->
+            {% for item in board_list %}
+            <div class="board-item" onclick="location.href='{{ url_for(request, 'board_detail', board_no=item.board.board_no) }}'">
+                {% if item.thumbnail %}
+                    <img src="{{ item.thumbnail }}" alt="썸네일" class="board-thumbnail">
+                {% else %}
+                    <div class="board-thumbnail no-image">📄</div>
+                {% endif %}
+                
+                <div class="board-content">
+                    <h3 class="board-title">{{ item.board.board_title }}</h3>
+                    
+                    <div class="board-meta">
+                        <div class="board-author">
+                            <!-- <p>{{  item.board.author }}</p>         -->
+                            <!-- <p>{{  item.board.author.profile_img  }}</p>         -->
+                            {% if item.board.author.profile_img %}
+                                <img src="/uploads{{ item.board.author.profile_img }}" alt="프로필" class="author-profile">
+                                <!-- <img src="/uploads{{ item.board.author.member_no }}" alt="프로필" class="author-profile"> -->
+                            {% else %}
+                                <img src="{{ url_for(request, 'static', path='/images/user.png') }}" alt="프로필디폴트" class="author-profile">
+                            {% endif %}
+                            <span>{{ item.board.author.member_nickname }}</span>
+                        </div>
+                        <span>·</span>
+                        <span>{{ item.board.b_create_date.strftime('%Y.%m.%d') }}</span>
+                    </div>
+
+                    <div class="board-stats">
+                        <div class="stat-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <span>{{ item.board.board_count }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                            <span>{{ item.like_count }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                            </svg>
+                            <span>{{ item.comment_count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-list">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p>게시글이 없습니다.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- 페이징 -->
+    {% if total_pages > 1 %}
+    <div class="pagination" id="pagination">
+        <!-- << 처음 페이지 -->
+        {% if page > 1 %}
+            <a href="{{ url_for(request, 'board_list') }}?page=1&limit={{ limit }}&keyword={{ keyword }}&search_type={{ search_type }}&sort_by={{ sort_by }}" class="page-btn page-arrow">&laquo;</a>
+        {% else %}
+            <button class="page-btn page-arrow" disabled>&laquo;</button>
+        {% endif %}
+
+        <!-- < 이전 버튼 -->
+        {% if page > 1 %}
+            <a href="{{ url_for(request, 'board_list') }}?page={{ page - 1 }}&limit={{ limit }}&keyword={{ keyword }}&search_type={{ search_type }}&sort_by={{ sort_by }}" class="page-btn page-arrow">‹</a>
+        {% else %}
+            <button class="page-btn page-arrow" disabled>‹</button>
+        {% endif %}
+
+        <!-- 페이지 번호 -->
+        {% for page_num in page_numbers %}
+            <a href="{{ url_for(request, 'board_list') }}?page={{ page_num }}&limit={{ limit }}&keyword={{ keyword }}&search_type={{ search_type }}&sort_by={{ sort_by }}" 
+                class="page-btn {% if page_num == page %}active{% endif %}">
+                {{ page_num }}
+            </a>
+        {% endfor %}
+
+        <!-- > 다음 페이지 버튼 -->
+        {% if page < total_pages %}
+            <a href="{{ url_for(request, 'board_list') }}?page={{ page + 1 }}&limit={{ limit }}&keyword={{ keyword }}&search_type={{ search_type }}&sort_by={{ sort_by }}" class="page-btn page-arrow">›</a>
+        {% else %}
+            <button class="page-btn page-arrow" disabled>›</button>
+        {% endif %}
+
+        <!-- >> 마지막 페이지 -->
+        {% if page < total_pages %}
+            <a href="{{ url_for(request, 'board_list') }}?page={{ total_pages }}&limit={{ limit }}&keyword={{ keyword }}&search_type={{ search_type }}&sort_by={{ sort_by }}" class="page-btn page-arrow">&raquo;</a>
+        {% else %}
+            <button class="page-btn page-arrow" disabled>&raquo;</button>
+        {% endif %}
+
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+
+<script>
+// // 헤더 로그인 상태관리 by Session ==> ajax 딜레이로 별로 사용성이 않좋다. 그냥 원래대로 localStrorage쓰는걸로.
+{% if false %} // jinja2에서 주석 처리법 (또는 {#  #} 로감싼다 b/c JS 주석 // 있어도 jinja2가 구문실행하는거 방지)
+// let loginMemberNo = {{ current_user['member_no'] }};
+// let memberNickname = {{ current_user['member_nickname'] | tojson }}; 
+// let profileImg = "/uploads" + {   { current_user['profile_img'] | tojson }  };  // 문자열은 jinja2 표현식을 ""로 감싸거나 |tojson 필터써야함
+// let profileImg = "/uploads" + {{ current_user.get('profile_img') | tojson }};  // undefined방어, 문자열은 jinja2 표현식을 ""로 감싸거나 |tojson 필터써야함
+// // let profileImg = "/uploads" + "/images/board/freeboard/images_cat02.jpg"; // |tojson필터쓴 렌더링 결과
+{% endif %}
+// 또는 조건문으로 보호
+{% if current_user and current_user.member_nickname %}
+    let loginMemberNo = {{ current_user.get('member_no') | tojson }};
+    let memberNickname = {{ current_user.get('member_nickname') | tojson }};
+    let profileImg = "/uploads" + {{ current_user.get('profile_img') | tojson }};  
+{% else %}
+    let loginMemberNo = null;
+    let memberNickname = null;
+    let profileImg = null;
+{% endif %}
+
+
+
+// 정렬 변경
+function changeSort(sortBy) {
+    const url = new URL(window.location.href);
+    //console.log("changeSort(sortBy), window.location.href: ",  window.location.href); //  http://localhost:8880/board/list
+    url.searchParams.set('sort_by', sortBy);
+    url.searchParams.set('page', '1'); // 정렬 변경 시 1페이지로
+    window.location.href = url.toString();
+    console.log("changeSort(sortBy), window.location.href with searchParams: ",  window.location.href); // http://localhost:8880/board/list?sort_by=views&page=1
+}
+</script>
+
+<script src="{{ url_for(request, 'static', path='/js/freeboardList.js') }}"></script>    
+{% endblock %}

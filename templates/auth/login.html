@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 제이비제이 JoBoJu</title>
+    <!-- <link rel="stylesheet" href="/static/css/common.css"> -->
+    <link rel="stylesheet" href="{{ url_for(request, 'static', path='/css/common.css') }}">   
+    <link rel="stylesheet" href="{{ url_for(request, 'static', path='/css/login.css') }}">    
+    <link rel="stylesheet" href="{{ url_for(request, 'static', path='/css/fontawesome/all.min.css') }}">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+</head>
+<body>
+    <!-- <div id="header"></div> -->
+    <!-- 헤더 -->
+    {% include 'components/header.html' %}
+
+    <main>
+        <div class="container">
+            <img src="/static/images/jbj_logo.png" class="logo" alt="JBJ Logo">
+            
+            <div class="login-box">
+                <form id="loginFrm">
+                    <input type="email" name="memberEmail" id="memberEmail"
+                           class="input" placeholder="아이디" required />
+                    
+                    <input type="password" name="memberPw" id="memberPw"
+                           class="input" placeholder="비밀번호" required />
+                    
+                    <button type="submit" class="btn-login">로그인</button>
+                    
+                    <div class="options">
+                        <label class="checkbox">
+                            <input type="checkbox" name="saveId" id="saveId" />
+                            아이디 저장
+                        </label>
+                        <a href="/signup.html" class="signUp">회원가입</a>
+                    </div>
+                    
+                    <div class="divider">OR</div>
+                    
+                    <button type="button" class="btn-kakao" id="kakaoLoginBtn">
+                        <img src="/static/images/member/topic_ballon.png" class="kakao-icon" alt="">
+                        카카오 로그인
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <!-- <div id="footer"></div> -->
+    <!-- 푸터 -->
+    {% include 'components/footer.html' %}
+
+    <!-- 공통 JS -->
+    <script src="{{ url_for(request, 'static', path='/js/common.js') }}"></script>    
+    <!-- <script src="/static/js/common.js"></script> -->
+    <script src="{{ url_for(request, 'static', path='/js/login.js') }}"></script>  
+    <!-- <script src="/static/js/login.js"></script> -->
+</body>
+</html>

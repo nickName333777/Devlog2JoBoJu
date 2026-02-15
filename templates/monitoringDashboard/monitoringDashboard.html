@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}모니터링 대시보드 - 제이비제이 JoBoJu{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for(request, 'static', path='/css/monitoringDashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- 모니터링 대시보드 헤더 -->
+    <div class="monitoring-dashboard-header">
+        <h1>모니터링 대시보드</h1>
+        <p class="monitoring-dashboard-description">장비 모니터링 대시보드 공간입니다</p>
+    </div>
+    
+	<div class="tabs">
+		<div class="tab-list" role="tablist">
+			<button role="tab" aria-selected="true" aria-controls="panel-1" id="tab-1">
+			  탭 1
+			</button>
+			<button role="tab" aria-selected="false" aria-controls="panel-2" id="tab-2">
+			  탭 2
+			</button>
+			<button role="tab" aria-selected="false" aria-controls="panel-3" id="tab-3">
+			  탭 3
+			</button>			
+		</div>
+
+		<div id="panel-1" role="tabpanel" aria-labelledby="tab-1">
+			탭 1 내용 placeholder 입니다.
+		</div>
+		<div id="panel-2" role="tabpanel" aria-labelledby="tab-2" hidden>
+			<br>
+			탭 2 내용 placeholder 입니다.
+		</div>
+		<div id="panel-3" role="tabpanel" aria-labelledby="tab-3" hidden>
+			<br><br>탭 3 내용 placeholder 입니다.
+		</div>		
+	</div>
+	
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for(request, 'static', path='/js/monitoringDashboard.js') }}"></script>    
+
+<script>
+// 템플릿 함수
+function templateFunc(varA) {
+    const url = new URL(window.location.href);
+    console.log("templateFunc(varA), window.location.href: ",  window.location.href); // http://localhost:8880/
+}
+</script>
+{% endblock %}

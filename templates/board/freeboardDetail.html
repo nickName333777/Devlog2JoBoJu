@@ -1,0 +1,624 @@
+{% extends "base.html" %}
+
+{% block title %}{{ board.board_title }} - 자유게시판{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for(request, 'static', path='/css/freeboardDetail.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- 게시글 내용 -->
+    <article class="board-article" id="boardArticle">
+        <div class="article-header">
+            <h1 class="article-title">{{ board.board_title }}</h1>
+            
+            <div class="article-meta">
+                <div class="author-info">
+                    {% if board.author.profile_img %}
+                        <img src="/uploads{{ board.author.profile_img }}" alt="프로필" class="author-profile">
+                    {% else %}
+                        <img src="{{ url_for(request, 'static', path='/images/user.png') }}" alt="프로필디폴트" class="author-profile">
+                    {% endif %}
+                    <div class="author-details">
+                        <span class="author-name">{{ board.author.member_nickname }}</span>
+                        <!-- <span class="author-level">Level {{ board.author.member_level_no }}</span> -->
+                    </div>
+                </div>
+
+                <div class="article-stats">
+                    <div class="stat-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>{{ board.b_create_date.strftime('%Y.%m.%d %H:%M') }}</span>
+                    </div>
+                    {% if board.b_update_date %}
+                    <div class="stat-item">
+                        <span class="tag-modified">(수정됨)</span>
+                    </div>
+                    {% endif %}
+                    <div class="stat-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <span>{{ board.board_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 본문 -->
+        <div class="article-content">
+            {{ board.board_content | safe }}
+        </div>
+
+        <!-- 이미지 갤러리 -->
+        {% if images and images|length > 0 %}
+        <div class="article-images">
+            <!-- images는 image_list = [f"/uploads{os.path.join(img.img_path, img.img_rename)}" for img in board.images] -->
+            <!-- 첫 번째 이미지 -->
+            <div class="image-main">
+                <img src="{{ images[0] }}" alt="게시글 이미지">
+            </div>
+
+            <!-- 나머지 이미지들 -->
+            {% if images|length > 1 %}
+            <div class="image-thumbs">
+                {% for image_url in images[1:] %}
+                <div class="thumb-item">
+                    <img src="{{ image_url }}" alt="게시글 이미지">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}            
+
+        </div>
+        {% endif %}
+
+        <!-- 게시글 액션 -->
+        <div class="article-actions">
+            <!-- 좋아요 버튼 -->
+            <button class="btn-like {% if is_liked %}liked{% endif %}" 
+                    onclick="toggleLike({{ board.board_no }})" 
+                    id="likeBtn">
+                <svg class="like-icon" id="likeIcon" viewBox="0 0 24 24" fill="{% if is_liked %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2">
+                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+                <span class="like-count" id="likeCount">{{ like_count }}</span>
+            </button>
+
+
+            <!-- 목록 버튼 -->
+            <button class="btn-list" onclick="location.href='{{ url_for(request, 'board_list') }}'">목록</button>
+
+            <!-- 작성자 전용 버튼 -->
+            {% if is_author %}
+            <button class="btn-edit" onclick="location.href='/board2/update/{{ board.board_no }}'">수정</button>
+            <button class="btn-delete" onclick="deleteBoard({{ board.board_no }})">삭제</button>
+            <!-- <button class="btn-delete" onclick="location.href='/board2/delete/{{ board.board_no }}'">삭제</button> -->
+            <!-- onclick="location.href='/board2/delete/{{ board.board_no }}'": HTTP mehtod = GET 으로, POST인 router로  DELETE수행못함 => -->
+            {% endif %}
+        </div>
+    </article>
+
+    <!-- ============================== -->
+    <!-- 댓글 섹션                       -->
+    <!-- ============================== -->
+    <section class="comment-section">
+        <h3 class="comment-title">
+            댓글 <span class="comment-count" id="commentTotalCount">{{ comment_count }}</span>
+        </h3>
+
+        <!-- 댓글 작성 폼 (로그인 사용자만) -->
+        {% if current_user %}
+        <div class="comment-write-box" id="rootCommentBox">
+            <div class="comment-write-avatar">
+                {% if current_user.get('profileImg') %}
+                    <!-- <img src="/uploads{{ current_user.profileImg }}" alt="프로필" class="comment-avatar"> 댓글작성자-->
+                    <img src="/uploads{{ current_user.profile_img }}" alt="프로필" class="comment-avatar">
+                {% else %}
+                    <img src="{{ url_for(request, 'static', path='/images/user.png') }}" alt="프로필디폴트" class="author-profile">
+                {% endif %}
+            </div>
+            <div class="comment-write-inner">
+                <textarea 
+                    id="rootCommentInput" 
+                    class="comment-textarea" 
+                    placeholder="댓글을 입력하세요..." 
+                    rows="3"
+                    oninput="toggleSubmitBtn('rootSubmitBtn', this)"
+                ></textarea>
+                <div class="comment-write-footer">
+                    <label class="secret-label">
+                        <input type="checkbox" id="rootSecretCheck" class="secret-check">
+                        <span>비밀댓글</span>
+                    </label>
+                    <div class="comment-write-btns">
+                        <span class="char-count" id="rootCharCount">0 / 2000</span>
+                        <button class="btn-comment-submit" id="rootSubmitBtn" disabled onclick="submitComment({{ board.board_no }}, null)">작성</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="comment-login-notice">
+            <p>댓글을 작성하려면 <a href="/member/login">로그인</a>이 필요합니다.</p>
+        </div>
+        {% endif %}
+
+        <!-- 댓글 목록 (AJAX로 로드) -->
+        <div class="comment-list" id="commentList">
+            <div class="comment-loading" id="commentLoading">
+                <span>댓글 로드 중...</span>
+            </div>
+        </div>
+    </section>
+
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for(request, 'static', path='/js/freeboardDetail.js') }}"></script>    
+
+<script>
+
+// ================================================
+// 글로벌 상태 :JS에서 쓸 전역변수 선언
+// ================================================
+const BOARD_NO = {{ board.board_no }};
+const IS_LOGGED_IN = {{ 'true' if current_user else 'false' }};
+
+
+// ================================================
+// 좋아요 토글
+// ================================================
+async function toggleLike(boardNo) {
+    if (!IS_LOGGED_IN) {
+        alert('로그인이 필요합니다.');
+        return;
+    }
+
+    const btn = document.getElementById('likeBtn');
+    btn.disabled = true;
+
+    try {
+        // const res = await fetch(`/api/board/${boardNo}/like`, {
+        const res = await fetch(`/api/board/ajax/${boardNo}/like`, {
+            method: 'POST',(다음 단계에서 구현)
+            headers: {
+                //'Content-Type': 'application/json',
+                //'Authorization': `Bearer ${getToken()}` // JWT 사용 인증방식(서버는 이 토큰을 자체 검증), Stateless 인증 구조
+                'Accept': 'application/json'// Session 인증방식 => 로그인 성공하면 세션 객체 생성하고 세션ID생성(JSESSIONID)
+                                            // =>로그인 시 서버가 JSESSIONID 같은 세션 ID 발급 (Cookie: JSESSIONID=A8F9C2E9B7... )
+                                            // => 서버 메모리(Session Storage) 혹은 Redis에 해당 JSESSIONID별 사용자 상태(로그인상태정보) 저장 (이게 Session임)
+                                            // => 서버 → 클라이언트 : “이 ID를 쿠키로 저장해”: 서버가 응답 헤더에 쿠키(Cookie: JSESSIONID=A8F9C2E9B7... )를 실어 보냄
+                                            //    (“데이터로 쓰라고 준 게 아니라, 다음 요청 때 다시 보내라고 준 것”)  
+                                            // => Set-Cookie는 서버만 보낼 수 있음 (예시: HTTP/1.1 200 OK;  Set-Cookie: JSESSIONID=A8F9C2E9B7...; Path=/; HttpOnly)
+                                            // => 브라우저가 쿠키를 실제로 저장: 서버 응답 수신, Set-Cookie 헤더 확인, 자동으로 쿠키 저장 
+                                            // => 브라우저 쿠키 저장소: JSESSIONID = A8F9C2E9B7... (프론트 JS 관여없음)
+                                            // => 다음 클라이언트 요청부터 자동 인증
+                                            // => 브라우저가 자동으로 쿠키 전송, 프론트 코드에서 아무 것도 안 해도 됨
+                                            // => 예시) GET /board/list, Cookie: JSESSIONID=A8F9C2E9B7...
+                                            // => 다음요청에서 서버는 쿠키 값으로 사용자 찾음: 
+                                            //     요청 도착 -> 쿠키에서 JSESSIONID 추출 -> 서버 메모리(or Redis)에서 조회 ->"userId=10인 홍길동!" 
+                                            // => 로그인 상태유지 성공
+                                            //
+                                            // 프론트에서 토큰을 꺼내서 Authorization 헤더에 넣지 않음!!!
+                                            // 프론트는: 쿠키 존재 자체를 모를 수도 있음, HttpOnly면 JS로 접근도 불가
+            }
+        });
+
+        // if (res.status === 401) { // by ==> 'Authorization': `Bearer ${getToken()}` // JWT
+        //     alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+        //     // location.href = '/auth/login';
+        //     location.href = '/member/login';
+        //     return;
+        // }
+        if (!res.ok) {
+            throw new Error(`서버 오류: ${res.status}`);
+        }        
+
+        const data = await res.json();
+
+        // UI 업데이트
+        const icon = document.getElementById('likeIcon');
+        const countEl = document.getElementById('likeCount');
+
+        if (data.is_liked) {
+            btn.classList.add('liked');
+            icon.setAttribute('fill', 'currentColor');
+        } else {
+            btn.classList.remove('liked');
+            icon.setAttribute('fill', 'none');
+        }
+        countEl.textContent = data.like_count;
+
+    } catch (err) {
+        console.error('좋아요 오류:', err);
+        alert('좋아요 처리 중 오류가 발생했습니다.');
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+
+
+// // ================================================
+// // 게시글 삭제 ==> freeboardDetail.js에 async function deleteBoard(boardNo) 메서드로 작성
+// // ================================================
+// async function deleteBoard(boardNo) {
+//     if (!confirm('정말 이 게시글을 삭제하시겠습니까?\n삭제된 게시글은 복구되지 않습니다.')) return;
+//
+//     try {
+//         await fetch(`/board2/delete/${boardNo}`, {
+//             method: 'POST',
+//             headers: { 'Authorization': `Bearer ${getToken()}` }, // getToken() for JWT
+//             redirect: 'manual'
+//         });
+//         location.href = '/board/list';
+//     } catch (err) {
+//         console.error('삭제 오류:', err);
+//         alert('삭제 중 오류가 발생했습니다.');
+//     }
+// }
+
+
+// // 추가 on 2026/02/04
+// ================================================
+// 댓글 목록 로드
+// ================================================
+async function loadComments() {
+    const listEl = document.getElementById('commentList');
+    const loadingEl = document.getElementById('commentLoading');
+
+    try {
+        const res = await fetch(`/api/board/ajax/${BOARD_NO}/comments`, {
+            headers: IS_LOGGED_IN ? { 
+                // 'Authorization': `Bearer ${getToken()}`  // JWT
+                'Accept': 'application/json'
+            } : {}
+        });
+        const data = await res.json();
+
+        if (loadingEl) loadingEl.remove();
+
+        if (data.comments.length === 0) {
+            listEl.innerHTML = '<p class="comment-empty">아직 댓글이 없습니다. 첫 번째 댓글을 달아보세요!</p>';
+        } else {
+            listEl.innerHTML = '';
+            data.comments.forEach(comment => {
+                listEl.appendChild(renderComment(comment));
+            });
+        }
+
+        document.getElementById('commentTotalCount').textContent = data.total;
+
+    } catch (err) {
+        console.error('댓글 로드 오류:', err);
+        listEl.innerHTML = '<p class="comment-empty">댓글을 로드하는 데 실패했습니다.</p>';
+    }
+}
+
+// ================================================
+// 댓글 DOM 렌더링
+// ================================================
+function renderComment(comment) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'comment-item' + (comment.parents_comment_no ? ' reply' : '');
+    wrapper.id = `comment-${comment.comment_no}`;
+
+    let actionsHtml = '';
+    if (comment.is_mine && !comment.is_deleted) {
+        actionsHtml = `
+            <div class="comment-actions">
+                <button class="btn-comment-action" onclick="startEditComment(${comment.comment_no}, \`${escapeForJs(comment.comment_content)}\`)">수정</button>
+                <button class="btn-comment-action btn-danger" onclick="deleteComment(${comment.comment_no})">삭제</button>
+            </div>
+        `;
+    }
+
+    let replyBtnHtml = '';
+    if (IS_LOGGED_IN && !comment.is_deleted && !comment.parents_comment_no) {
+        replyBtnHtml = `<button class="btn-reply" onclick="startReply(${comment.comment_no})">답글</button>`;
+    }
+
+    let secretBadge = comment.is_secret ? '<span class="badge-secret">🔒 비밀</span>' : '';
+    let modifiedBadge = comment.modify_yn === 'Y' ? '<span class="badge-modified">(수정됨)</span>' : '';
+
+    wrapper.innerHTML = `
+        <div class="comment-header">
+            <div class="comment-author-info">
+                ${comment.author_profile 
+                    ? `<img src="${comment.author_profile}" alt="프로필" class="comment-avatar">` 
+                    : '<div class="comment-avatar no-img">  <svg class="avatar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg></div>'}
+                <span class="comment-nickname">${escapeHtml(comment.author_nickname)}</span>
+                ${secretBadge}
+            </div>
+            <div class="comment-meta-right">
+                <span class="comment-date">${comment.c_create_date}</span>
+                ${modifiedBadge}
+                ${actionsHtml}
+            </div>
+        </div>
+        <div class="comment-body">
+            <p class="comment-text" id="commentText-${comment.comment_no}">${escapeHtml(comment.comment_content)}</p>
+            ${replyBtnHtml}
+        </div>
+    `;
+
+    // 대댓글 재귀 렌더링
+    if (comment.replies && comment.replies.length > 0) {
+        const repliesContainer = document.createElement('div');
+        repliesContainer.className = 'comment-replies';
+        comment.replies.forEach(reply => {
+            repliesContainer.appendChild(renderComment(reply));
+        });
+        wrapper.appendChild(repliesContainer);
+    }
+
+    return wrapper;
+}
+
+// ================================================
+// 댓글 작성
+// ================================================
+async function submitComment(boardNo, parentsCommentNo) {
+    const isReply = parentsCommentNo !== null;
+    const inputEl = isReply
+        ? document.getElementById(`replyInput-${parentsCommentNo}`)
+        : document.getElementById('rootCommentInput');
+    const secretEl = isReply
+        ? document.getElementById(`replySecretCheck-${parentsCommentNo}`)
+        : document.getElementById('rootSecretCheck');
+    const submitBtn = isReply
+        ? document.getElementById(`replySubmitBtn-${parentsCommentNo}`)
+        : document.getElementById('rootSubmitBtn');
+
+    const content = inputEl.value.trim();
+    if (!content) {
+        alert('댓글 내용을 입력해주세요.');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = '작성 중...';
+
+    try {
+        const res = await fetch(`/api/board/ajax/${boardNo}/comments`, {
+            method: 'POST',
+            headers: {
+                // 'Content-Type': 'application/json',
+                // 'Authorization': `Bearer ${getToken()}` // JWT
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                comment_content: content,
+                parents_comment_no: parentsCommentNo,
+                secret_yn: (secretEl && secretEl.checked) ? 'Y' : 'N'
+            })
+        });
+
+        // if (res.status === 401) {
+        //     alert('세션이 만료되었습니다.');
+        //     location.href = '/member/login';
+        //     return;
+        // }
+        if (!res.ok) {
+            throw new Error(`서버 오류: ${res.status}`);
+        }        
+
+        const data = await res.json();
+
+        if (res.ok) {
+            inputEl.value = '';
+            if (secretEl) secretEl.checked = false;
+            if (isReply) closeReplyBox(parentsCommentNo);
+            await loadComments();
+        } else {
+            alert(data.message || '댓글 작성에 실패했습니다.');
+        }
+
+    } catch (err) {
+        console.error('댓글 작성 오류:', err);
+        alert('댓글 작성 중 오류가 발생했습니다.');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = isReply ? '답글' : '작성';
+    }
+}
+
+// ================================================
+// 답글 폼 토글
+// ================================================
+function startReply(parentCommentNo) {
+    const existing = document.getElementById(`replyBox-${parentCommentNo}`);
+    if (existing) {
+        closeReplyBox(parentCommentNo);
+        return;
+    }
+
+    const commentItem = document.getElementById(`comment-${parentCommentNo}`);
+    const replyBox = document.createElement('div');
+    replyBox.className = 'comment-write-box reply-box';
+    replyBox.id = `replyBox-${parentCommentNo}`;
+    replyBox.innerHTML = `
+        <div class="comment-write-inner">
+            <textarea 
+                id="replyInput-${parentCommentNo}" 
+                class="comment-textarea" 
+                placeholder="답글을 입력하세요..." 
+                rows="2"
+                oninput="toggleSubmitBtn('replySubmitBtn-${parentCommentNo}', this)"
+            ></textarea>
+            <div class="comment-write-footer">
+                <label class="secret-label">
+                    <input type="checkbox" id="replySecretCheck-${parentCommentNo}" class="secret-check">
+                    <span>비밀답글</span>
+                </label>
+                <div class="comment-write-btns">
+                    <button class="btn-comment-submit" id="replySubmitBtn-${parentCommentNo}" disabled onclick="submitComment(${BOARD_NO}, ${parentCommentNo})">답글</button>
+                    <button class="btn-comment-cancel" onclick="closeReplyBox(${parentCommentNo})">취소</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    commentItem.appendChild(replyBox);
+    replyBox.querySelector('textarea').focus();
+}
+
+function closeReplyBox(parentCommentNo) {
+    const box = document.getElementById(`replyBox-${parentCommentNo}`);
+    if (box) box.remove();
+}
+
+// ================================================
+// 댓글 수정
+// ================================================
+function startEditComment(commentNo, originalContent) {
+    const textEl = document.getElementById(`commentText-${commentNo}`);
+    const commentBody = textEl.parentElement;
+
+    if (commentBody.querySelector('.edit-container')) return;
+
+    textEl.style.display = 'none';
+
+    const editDiv = document.createElement('div');
+    editDiv.className = 'edit-container';
+    editDiv.innerHTML = `
+        <textarea class="edit-textarea" id="editInput-${commentNo}" rows="2"></textarea>
+        <div class="edit-actions">
+            <button class="btn-comment-submit btn-small" onclick="saveEditComment(${commentNo})">저장</button>
+            <button class="btn-comment-cancel btn-small" onclick="cancelEditComment(${commentNo})">취소</button>
+        </div>
+    `;
+    commentBody.appendChild(editDiv);
+    const textarea = document.getElementById(`editInput-${commentNo}`);
+    textarea.value = originalContent;
+    textarea.focus();
+}
+
+async function saveEditComment(commentNo) {
+    const inputEl = document.getElementById(`editInput-${commentNo}`);
+    const content = inputEl.value.trim();
+
+    if (!content) {
+        alert('댓글 내용을 입력해주세요.');
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/board/ajax/comments/${commentNo}`, {
+            method: 'PUT',
+            headers: {
+                // 'Content-Type': 'application/json',
+                // 'Authorization': `Bearer ${getToken()}` // JWT
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ comment_content: content })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            await loadComments();
+        } else {
+            alert(data.message || '수정에 실패했습니다.');
+        }
+    } catch (err) {
+        console.error('수정 오류:', err);
+        alert('댓글 수정 중 오류가 발생했습니다.');
+    }
+}
+
+function cancelEditComment(commentNo) {
+    const textEl = document.getElementById(`commentText-${commentNo}`);
+    const editContainer = textEl.parentElement.querySelector('.edit-container');
+    if (editContainer) editContainer.remove();
+    textEl.style.display = '';
+}
+
+// ================================================
+// 댓글 삭제
+// ================================================
+async function deleteComment(commentNo) {
+    if (!confirm('이 댓글을 삭제하시겠습니까?')) return;
+
+    try {
+        const res = await fetch(`/api/board/ajax/comments/${commentNo}`, {
+            method: 'DELETE',
+            headers: { 
+                // 'Authorization': `Bearer ${getToken()}` // JWT
+                'Accept': 'application/json'
+            }
+        });
+
+        if (res.ok) {
+            await loadComments();
+        } else {
+            const data = await res.json();
+            alert(data.message || '삭제에 실패했습니다.');
+        }
+    } catch (err) {
+        console.error('삭제 오류:', err);
+        alert('댓글 삭제 중 오류가 발생했습니다.');
+    }
+}
+
+// ================================================
+// 유틸리티
+// ================================================
+
+function getToken() {
+    // TODO: 실제 프로젝트 토큰 저장 방식에 맞게 수정
+    return document.cookie.match(/token=([^;]+)/)?.[1] || ''; // 이건 세션 인증에서 절대 안 함? (JWT 인증에서 LocalStorage.getItem("access_token")에서나 사용)
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+/** JS 템플릿 리터럴 내부용 이스케이프 */
+function escapeForJs(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/`/g, '\\`')
+        .replace(/\$/g, '\\$')
+        .replace(/\n/g, '\\n');
+}
+
+function toggleSubmitBtn(btnId, textarea) {
+    const btn = document.getElementById(btnId);
+    if (btn) btn.disabled = textarea.value.trim().length === 0;
+    if (btnId === 'rootSubmitBtn') updateCharCount('rootCharCount', textarea);
+}
+
+function updateCharCount(elementId, textarea) {
+    const el = document.getElementById(elementId);
+    if (el) el.textContent = `${textarea.value.length} / 2000`;
+}
+
+// ================================================
+// 페이지 로드
+// ================================================
+document.addEventListener('DOMContentLoaded', () => {
+    loadComments();
+
+    const rootInput = document.getElementById('rootCommentInput');
+    if (rootInput) {
+        rootInput.addEventListener('input', () => updateCharCount('rootCharCount', rootInput));
+    }
+});
+
+
+</script>
+{% endblock %}

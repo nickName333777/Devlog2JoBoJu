@@ -205,3 +205,38 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+########################## added for JBJ-FastAPI porting
+## Python
+#__pycache__/ # 중복
+*.py[cod]
+#*$py.class  # 중복
+#*.so  # 중복
+#.Python  # 중복
+#venv/  # 중복
+#env/  # 중복
+#ENV/  # 중복
+
+## Environment
+#.env  # 중복
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sqlite
+
+# Static uploads
+static/uploads/*
+!static/uploads/.gitkeep

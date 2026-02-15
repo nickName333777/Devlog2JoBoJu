@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoBoJu 챗봇 - 기본형</title>
+    <link rel="stylesheet" href="/static/css/fbChatbot.css">
+    <link rel="stylesheet" href="/static/css/font.css">
+</head>
+<body>
+
+    <main>
+        <div class="chatbot-container">
+
+            <!-- Header -->
+            <div class="header">
+                JoBoJu 자유게시판 챗봇
+            </div>
+
+            <!-- Option Bar -->
+            <div class="option-bar">
+                <button type="button" class="option-btn">선택된 챗봇 유형</button>
+                <div class="select-box">
+                    <select class="option-select" id="chatbotType" disabled>
+                        <option class="cb-basic" value="basic" selected>기본형</option>
+                        <option class="cb-kong" value="kong">커피콩충전형</option>
+                    </select>
+                </div>
+                <img id="chatbotProfileImg" src="/static/images/board/freeboard/chatbot1.png" class="bot-img" alt="basic챗봇이미지">
+            </div>
+
+            <!-- Chat Box -->
+            <div class="chat-area-wrapper">
+                <!-- JS에서 동적으로 화면만들어서 chat-box안에 채움 -->
+                <div class="chat-box" id="chatBox">
+                    <!-- 메시지가 여기에 동적으로 추가됨 -->
+                </div>
+            
+                <!-- Token usage info area -->
+                <div class="token-usage-info-area">
+                    <div class="token-usage tu-row1">
+                        <div><p class="token-info">무료</p></div>
+                        <p class="token-info" id="tokenInfo">
+                            (입력 20/응답 500자 이내 단순 질의/응답용: 테스트용)
+                        </p>
+                    </div>
+
+                    <div class="token-usage tu-row2">
+                        <!-- 서버 usage 메타 데이터(token정보) 아래 token-info p-tag에 표시 영역 -->
+                        <div><p class="token-info" id="tokenUsageDisplay"></p></div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <textarea id="chatInput" class="input-textarea" placeholder="여기에 내용을 입력" 
+                            rows="3" cols="30" maxlength="20"></textarea>
+                    <button id="sendBtn" class="send-btn">
+                        <img src="/static/images/board/freeboard/cb_send2.png" alt="전송">
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 전역 변수 초기화 스크립트 -->
+    <script>
+    console.log("SCRIPT START");
+        // 세션에서 사용자 정보 가져오기 (API 호출)
+        let loginMemberNo = null;
+        let memberNickname = null;
+        let profileImg = null;
+        let beansAmount = null;
+        
+        // 챗봇 설정
+        const chatbotId = "BASIC";
+        const chatbotType = "free";
+        const cbtProfileImg = "/static/images/board/freeboard/chatbot1.png";
+
+        // 부모 창에서 전달받은 데이터
+        let boardNo = null;
+        let boardCode = null;
+        let boardTitle = null;
+
+        // 전역 변수로 등록
+        window.loginMemberNo = loginMemberNo;
+        window.memberNickname = memberNickname;
+        window.profileImg = profileImg;
+        window.beansAmount = beansAmount;
+
+        window.chatbotId = chatbotId;
+        window.chatbotType = chatbotType;
+        window.cbtProfileImg = cbtProfileImg;
+
+        window.boardNo = boardNo;
+        window.boardCode = boardCode;
+        window.boardTitle = boardTitle;
+
+        // 사용자 정보 로드 함수
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/api/auth/me');
+                if (response.ok) {
+                    const userData = await response.json();
+                    window.loginMemberNo = userData.member_no;
+                    window.memberNickname = userData.member_nickname;
+                    // window.profileImg = userData.profile_img || '/static/images/user.png';  
+                    //window.profileImg = "/static" + userData.profile_img || '/static/images/user.png'; // CSR static rendering에는 "/static" prefix필요 
+                    //window.profileImg = "/uploads" + userData.profile_img || '/static/images/user.png'; // prefix필요 
+                    window.profileImg = `/uploads${userData.profile_img}` || '/static/images/user.png'; // prefix필요 
+                    window.beansAmount = userData.beans_amount || 0;
+                    
+                    // 전역변수
+                    loginMemberNo = userData.member_no;
+                    memberNickname = userData.member_nickname;
+                    // profileImg = userData.profile_img || '/static/images/user.png';
+                    //profileImg = "/static" + userData.profile_img || '/static/images/user.png'; // CSR static rendering에는 "/static" prefix필요 
+                    profileImg = `/uploads${userData.profile_img}` || '/static/images/user.png'; // prefix필요 
+                    
+                    beansAmount = userData.beans_amount || 0;
+                    // DEBUG
+                    console.log("로그인info window. 변수등록:", {
+                        loginMemberNo: window.loginMemberNo,
+                        memberNickname: window.memberNickname,
+                        profileImg: window.profileImg,
+                        beansAmount: window.beansAmount,
+
+                        loginMemberNo2: loginMemberNo,
+                        memberNickname2: memberNickname,
+                        profileImg2: profileImg,
+                        beansAmount2: beansAmount
+                    });
+
+                    console.log("사용자 정보 로드 완료:", userData);
+                } else {
+                    console.log("비로그인 상태");
+                }
+            } catch (error) {
+                console.error("사용자 정보 로드 실패:", error);
+            }
+        }
+
+        // 부모 창에서 데이터 가져오기
+        function loadParentData() {
+            if (window.opener && window.opener.globalData) { // truthy: A || B --> A가 truthy면 A반환, A가 falsy면 B 반환 (우리는 실제 B 값 있다)
+                window.boardNo = window.opener.globalData.boardNo || window.opener.globalData.boardNoGlobal;
+                //window.boardCode = window.opener.globalData.boardCode || window.opener.globalData.boardCodeGlobal;
+                //window.boardTitle = window.opener.globalData.boardTitle || window.opener.globalData.boardTitleGlobal;
+
+                window.loginMemberNo = window.opener.globalData.loginMemberNo || window.opener.globalData.loginMemberNoGlobal;
+                //window.memberNickname = window.opener.globalData.memberNickname || window.opener.globalData.memberNicknameGlobal;
+                //window.profileImg = window.opener.globalData.profileImg || window.opener.globalData.profileImgGlobal;
+                //window.beansAmount = window.opener.globalData.beansAmount || window.opener.globalData.beansAmountGlobal;
+                
+                console.log("부모 창 데이터:", {
+                    boardNo: window.boardNo,
+                    //boardCode: window.boardCode,
+                    //boardTitle: window.boardTitle,
+
+                    loginMemberNo: window.loginMemberNo,
+                    //memberNickname: window.memberNickname,
+                    //profileImg: window.profileImg,
+                    //beansAmount: window.beansAmount
+                });
+
+                // 이걸 다시 현재 자식 window.global 데이터에 할당하여 Kong 토글 opening에 대비
+
+            }
+        }
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadUserInfo();
+            loadParentData();
+        });
+
+    console.log("SCRIPT END");
+    </script>
+
+    <!-- fbChatbot.js 추가 -->
+    <script src="/static/js/fbChatbot.js"></script>
+
+</body>
+</html>

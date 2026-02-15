@@ -1,0 +1,276 @@
+/* fbChatbot.css - JoBoJu 챗봇 스타일 */
+
+/* 전체 컨테이너 */
+.chatbot-container {
+    /* width: 840px; */
+    width: 640px;
+    margin: 20px auto;
+    border: 2px solid #3a5a40ff;
+    border-radius: 6px;
+    font-family: Arial, sans-serif;
+    background: white;
+}
+
+/* 헤더 */
+.header {
+    padding: 15px 0;
+    text-align: center;
+    font-weight: bold;
+    font-size: 2rem;
+    color: white;
+
+    background: linear-gradient(
+        to right,
+        rgba(52, 78, 65, 1) 0%, /* 불투명도 100%  */
+        rgba(52, 78, 65, 0.85) 50%, /* 50% 위치도 불투명도 85%  */
+        rgba(52, 78, 65, 0.65) 100% /* 100% 위치도 불투명도 65%  */
+    );     
+}
+
+/* 옵션 바 */
+.option-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px 10px 0px 10px;
+    background: #fff;
+}
+
+.option-btn {
+    width: 200px;
+    background: #344e41ff;
+    border-radius: 6px;
+    color: white;
+
+    padding: 5px 15px;       
+    font-size: 1rem;
+    border: none;
+    margin-left: 50px;
+    margin-right: 10px;
+}
+
+/* .option-btn:hover {
+    background: #a3b18aff;
+} */
+
+.select-box {
+    position: relative;
+    width: 140px;
+    margin-right: 20px;
+}
+
+.select-box select {
+    width: 100%;
+    background: #fcf9efff;
+    padding: 5px 6px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+
+    appearance: none; /* 기본화살표 숨기기 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+/* 채팅 영역 래퍼 */
+.chat-area-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+
+    height: 80vh; /* 팝업의 경우 화면 높이 기준 */
+}
+
+/* 실제 메시지 영역 */
+.chat-box {
+    flex: 1;
+    min-height: 20rem; /* 약 20줄 */
+    background-color: #f9f9f9;
+    width: 96%;
+    overflow-y: auto;
+    padding: 8px;
+    box-sizing: border-box;
+    margin: 2px 2px 2px 2px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+/* 말풍선 행 */
+.chat-row {
+    display: flex;
+    margin-bottom: 25px;
+}
+
+.chat-row.right {
+    justify-content: flex-end;
+}
+
+.chat-row.left {
+    justify-content: flex-start;
+}
+
+/* 프로필 이미지 */
+.bot-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+/* 말풍선 공통 */
+.bubble {
+    padding: 12px 16px;
+    max-width: 80%;
+    line-height: 1.4;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.bubble:hover {
+    transform: scale(1.01);
+}
+
+.bubble:active {
+    transform: scale(0.99);
+}
+
+.bubble.user {
+    background: #fcf9efff;
+    font-size: 1rem;
+    color: #000;
+    border-top-right-radius: 30px;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+}
+
+.bubble.bot {
+    background: #a3b18aff;
+    font-size: 1rem;
+    color: white;
+    border-top-right-radius: 30px;
+    border-top-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+
+.bubble.big {
+    max-width: 85%;
+}
+
+/* 시간 & 이름 */
+.time {
+    font-size: 1rem;
+    color: gray;
+    margin-top: 5px;
+}
+
+.name {
+    font-size: 1rem;
+    color: #555;
+}
+
+/* 토큰 사용 정보 영역 */
+.token-usage-info-area {
+    width: 96%;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 2px 2px 2px 2px;
+}
+
+.token-usage.tu-row1 {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.token-usage {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+p.token-info {
+    margin: 10px 20px 0px 20px;
+    padding: 10px 0px 0px 0px;
+}
+
+/* 입력 영역 */
+.input-area {
+    display: flex;
+    width: 96%;
+    padding: 5px 20px 20px 20px;
+}
+
+.input-textarea {
+    width: 80%;
+
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-bottom-left-radius: 6px;
+    border-top-left-radius: 6px;
+    /* font-size: 24px; */
+    font-size: 1rem;
+    resize: none;
+}
+
+.send-btn {
+    background: none;
+    border: 1px solid #ddd;
+    margin-left: 0px;
+    cursor: pointer;
+    border-bottom-right-radius: 6px;
+    border-top-right-radius: 6px;
+    padding: 20px 15px 10px 15px;
+}
+.send-btn img {
+    /* send버튼 이미지 크기 */
+    width: 40px;
+    /* height: 40px; */
+}
+
+.send-btn:hover {
+    background-color: #dad7cdff;
+}
+
+/* 복사 메뉴 스타일 */
+.copy-menu {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    padding: 5px;
+    z-index: 1000;
+}
+
+.copy-menu button {
+    background: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+    width: 100%;
+    text-align: left;
+    transition: background 0.2s;
+}
+
+.copy-menu button:hover {
+    background: #f0f0f0;
+}
+
+/* 글자 수 카운터 스타일 */
+#charCounter {
+    width: 8%;
+    text-align: right;
+    font-size: 12px;
+    color: #777;
+    padding: 5px 10px;
+    margin-bottom: 5px;
+}

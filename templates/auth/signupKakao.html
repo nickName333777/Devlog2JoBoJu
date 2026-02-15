@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>필수 회원정보 입력 - 제이비제이 JoBoJu</title>
+    <link rel="stylesheet" href="{{ url_for(request, 'static', path='/css/common.css') }}">   
+    <link rel="stylesheet" href="{{ url_for(request, 'static', path='/css/signup.css') }}">
+    <link rel="stylesheet" href="{{ url_for(request, 'static', path='/css/fontawesome/all.min.css') }}">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">         -->
+</head>
+<body>
+    <!-- <div id="header"></div> -->
+    <!-- 헤더 -->
+    {% include 'components/header.html' %}
+
+    <main>
+        <div class="container-wrapper">
+            <div class="top-space-bw-header"></div>
+            <h2 class="title fw-800">필수 회원정보 입력</h2>
+            
+            <div class="container">
+                <div class="signup-box">
+                    <form id="signupKakaoFrm">
+                        <!-- 이메일 -->
+                        <label class="label" for="memberEmail">아이디(이메일) <span class="required">*</span></label>
+                        <div class="row">
+                            <input type="email" class="input" name="memberEmail" id="memberEmail"
+                                   placeholder="이메일을 입력해 주세요" maxlength="30" autocomplete="off" required>
+                            <button id="sendAuthKeyBtn" type="button" class="btn-gray">인증 번호 받기</button>
+                        </div>
+                        <p class="desc" id="emailMessage">메일을 받을 수 있는 이메일을 입력해 주세요.</p>
+                        
+                        <!-- 인증번호 -->
+                        <label class="label" for="authKey">인증번호 <span class="required">*</span></label>
+                        <div class="row">
+                            <input type="text" name="authKey" id="authKey" class="input"
+                                   placeholder="이메일로 받은 인증번호 입력 후 인증하기 버튼을 클릭해 주세요">
+                            <button id="checkAuthKeyBtn" type="button" class="btn-gray">인증 하기</button>
+                        </div>
+                        <p class="desc" id="authKeyMessage"></p>
+                        
+                        <div class="spaceholder"><p><br></p></div>
+                        
+                        <!-- 비밀번호 -->
+                        <label class="label" for="memberPw">비밀번호 <span class="required">*</span></label>
+                        <input type="password" name="memberPw" id="memberPw" class="input"
+                               placeholder="비밀번호를 입력해주세요" maxlength="20" required>
+                        <p class="desc" id="pwMessage">영어,숫자,특수문자(!,@,#,-,_) 6~20자 사이로 입력해주세요.</p>
+                        
+                        <!-- 비밀번호 확인 -->
+                        <label class="label" for="memberPwConfirm">비밀번호 확인 <span class="required">*</span></label>
+                        <input type="password" name="memberPwConfirm" id="memberPwConfirm" class="input"
+                               placeholder="비밀번호 확인을 입력해주세요" maxlength="20" required>
+                        <p class="desc" id="pwCheckMessage">위에서 입력하신 비밀번호와 동일하게 입력해주세요.</p>
+                        
+                        <!-- 이름 -->
+                        <label class="label" for="memberName">이름 <span class="required">*</span></label>
+                        <input type="text" name="memberName" id="memberName" class="input"
+                               placeholder="이름을 입력해주세요" maxlength="10" required>
+                        <p class="desc" id="nameMessage">유효한 이름을 입력해주세요 (예시: 홍길동)</p>
+                        
+                        <!-- 닉네임 -->
+                        <label class="label" for="memberNickname">닉네임 <span class="required">*</span></label>
+                        <input type="text" name="memberNickname" id="memberNickname" class="input"
+                               placeholder="닉네임을 입력해주세요" maxlength="10" required>
+                        <p class="desc" id="nicknameMessage">한글, 영어, 숫자로만 2~10자</p>
+                        
+                        <!-- 전화번호 -->
+                        <label class="label" for="memberTel">전화번호 <span class="required">*</span></label>
+                        <input type="text" name="memberTel" id="memberTel" class="input"
+                               placeholder="(- 없이 숫자만 입력)" maxlength="11" required>
+                        <p class="desc" id="telMessage">전화번호를 입력해주세요 (- 제외)</p>
+                        
+                        <!-- 경력사항 -->
+                        <label class="label" for="memberCareer">경력사항 <span class="required">*</span></label>
+                        <input type="text" name="memberCareer" id="memberCareer" class="input"
+                               placeholder="개발 경력(개발년차)를 입력해주세요" required>
+                        <p class="desc" id="careerMessage">유효한 경력사항을 입력해주세요 (예시: 백엔드 3년차)</p>
+                        
+                        <!-- 이메일 수신 -->
+                        <label class="check fw-600" for="memberSubscribe">
+                            <input type="checkbox" name="memberSubscribe" id="memberSubscribe" value="Y">
+                            이메일 수신동의 (회원 전용 정보 제공 메일 수신에 동의합니다)
+                        </label>
+                        
+                        <div class="spaceholder"><p><br></p></div>
+                        
+                        <!-- 가입 버튼 -->
+                        <div class="btn-join-wrapper">
+                            <button type="submit" id="signUpBtn" class="btn-join">필수 회원정보 입력</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- <div id="footer"></div> -->
+    <!-- 푸터 -->
+    {% include 'components/footer.html' %}
+
+    <!-- 공통 JS -->
+    <script src="{{ url_for(request, 'static', path='/js/common.js') }}"></script>   
+    <!-- <script src="/static/js/common.js"></script> -->
+    <script src="{{ url_for(request, 'static', path='/js/signupKakao.js') }}"></script>   
+    <script src="/static/js/signupKakao.js"></script>
+</body>
+</html>

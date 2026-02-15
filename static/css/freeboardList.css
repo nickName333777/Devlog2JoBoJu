@@ -1,0 +1,310 @@
+/* 자유게시판 목록 스타일 */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* 게시판 헤더 */
+.board-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.board-header h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.board-description {
+    color: #7f8c8d;
+    font-size: 1rem;
+}
+
+/* 게시판 컨트롤 */
+.board-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    max-width: 600px;
+}
+
+.search-type {
+    padding: 10px;
+    border: 1px solid #dad7cdff;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    min-width: 100px;
+
+    background-color: #dad7cdff;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 0.95rem;
+}
+
+.btn-search {
+    padding: 10px 25px;
+    background-color: #344e41ff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.btn-search:hover {
+    background-color: #a3b18aff;
+}
+
+.sort-box {
+    display: flex;
+    align-items: center;
+}
+
+.sort-select {
+    padding: 10px;
+    border: 1px solid #dad7cdff;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    min-width: 120px;
+
+    background-color: #dad7cdff;
+}
+
+.btn-write {
+    padding: 10px 25px;
+    background-color: #344e41ff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.btn-write:hover {
+    background-color: #a3b18aff;
+}
+
+/* 게시글 목록 */
+.board-list {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.board-item {
+    display: flex;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.board-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.board-thumbnail {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 20px;
+    background-color: #dad7cdff;
+}
+
+.board-thumbnail.no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #95a5a6;
+    font-size: 3rem;
+}
+
+.board-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.board-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.board-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.board-author {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.author-profile {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.board-stats {
+    display: flex;
+    gap: 15px;
+    margin-top: auto;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #95a5a6;
+    font-size: 0.9rem;
+}
+
+.stat-item svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* 페이징 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 40px;
+}
+
+.page-btn {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 40px;
+}
+
+.page-btn:hover {
+    background-color: #344e41ff;
+    color: white;
+    border-color: #344e41ff;
+}
+
+.page-btn.active {
+    background-color: #344e41ff;
+    color: white;
+    border-color: #344e41ff;
+    font-weight: 600;
+}
+
+.page-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* 이미지 arrow고려해볼것 */
+/* .page-btn.page-arrow{
+    font-size: 16px !important;
+    color: red; 
+} */
+
+/* 빈 목록 */
+.empty-list {
+    text-align: center;
+    padding: 60px 20px;
+    color: #95a5a6;
+}
+
+.empty-list svg {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-list p {
+    font-size: 1.1rem;
+}
+
+/* 로딩 */
+.loading {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .board-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box {
+        max-width: 100%;
+    }
+
+    .board-item {
+        flex-direction: column;
+    }
+
+    .board-thumbnail {
+        width: 100%;
+        height: 200px;
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+
+    .board-title {
+        font-size: 1.2rem;
+    }
+}

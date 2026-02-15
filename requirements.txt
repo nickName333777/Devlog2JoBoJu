@@ -1,0 +1,55 @@
+# FastAPI 및 서버
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# 데이터베이스
+sqlalchemy==2.0.23
+cx_Oracle==8.3.0
+#alembic==1.12.1
+oracledb==1.4.2
+
+# 인증/보안
+python-jose[cryptography]==3.3.0
+#passlib[bcrypt]==1.7.4 => 이것만있으면 bcrypt==5.0.0설치로 이 passlib/bcript 조합에서 오류발생(쓰면않되는 조합)
+# 2026년 기준 FastAPI에서 bcrypt 쓸 거면 passlib 1.7.4 + bcrypt 3.2.2 말고는 보지 마라
+passlib[bcrypt]==1.7.4
+bcrypt==3.2.2
+python-dotenv==1.0.0
+
+# Pydantic 및 검증
+pydantic[email]==2.5.0
+#pydantic==2.5.2
+#pydantic-settings==2.1.0
+
+# 이메일
+aiosmtplib==3.0.1
+email-validator==2.1.0
+
+# CORS
+starlette==0.27.0
+
+# HTTP 클라이언트: HTTP 요청 (카카오 API)
+httpx==0.25.2
+requests==2.31.0
+
+# Jinja2 for 동적렌더링(SSR)
+jinja2==3.1.2
+
+# 로그인 세션 관리 starlette.middleware.sessions.SessionMiddleware가 사용하는 라이브러리
+itsdangerous>=2.1.2
+
+# 기타 유틸리티
+python-dateutil==2.8.2
+
+# Elasticsearch
+elasticsearch==8.11.0
+
+# 이미지 처리
+Pillow==10.1.0
+
+# OpenAI SDK (챗봇)
+openai==1.12.0
+
+# 로깅
+python-json-logger==2.0.7

@@ -1,0 +1,480 @@
+{% extends "base.html" %}
+
+{% block title %}게시글 수정 - 자유게시판{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for(request, 'static', path='/css/freeboardWrite.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="write-header">
+        <h1>게시글 수정</h1>
+        <p class="write-description">게시글을 수정합니다</p>
+    </div>
+
+
+    <!-- 글작성 도우미: 챗봇 -->
+    <div class="helper-box">
+        <div class="option-bar">
+            <button type="button" class="option-btn" id="optionBtn" >글작성 도우미 챗봇 선택</button>
+            <div class="select-box">
+                <select class="option-select" id="chatbotType">
+                    <option class="cb-basic" value="basic" selected>기본형</option>
+                    <option class="cb-kong" value="kong">커피콩충전형</option>
+                </select>
+            </div>
+            <img id="chatbotProfileImg" src="/static/images/board/freeboard/chatbot1.png" class="bot-img" alt="챗봇이미지">
+        </div>        
+    </div>
+            
+    <!-- 에러 메시지 -->
+    {% if error_message %}
+    <div class="error-alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <span>{{ error_message }}</span>
+    </div>
+    {% endif %}
+    
+    <!-- 수정 폼 -->
+    <form action="{{ url_for(request, 'board_update_submit', board_no=board.board_no) }}" method="post" enctype="multipart/form-data" class="write-form" id="updateForm">
+        <!-- 제목 -->
+        <div class="form-group">
+            <label for="boardTitle" class="form-label">제목 <span class="required">*</span></label>
+            <input 
+                type="text" 
+                id="boardTitle" 
+                name="board_title" 
+                class="form-input" 
+                value="{{ board.board_title }}"
+                required
+                maxlength="300"
+            >
+        </div>
+
+        <!-- 내용 -->
+        <div class="form-group">
+            <label for="boardContent" class="form-label">내용 <span class="required">*</span></label>
+            <textarea 
+                id="boardContent" 
+                name="board_content" 
+                class="form-textarea" 
+                required
+                rows="15"
+            >{{ board.board_content }}</textarea>
+        </div>
+
+        <!-- 기존 이미지 -->
+        {% if images %}
+        <div class="form-group">
+            <label class="form-label">기존 이미지</label>
+            <div class="existing-images">
+                {% for image in images %}
+                    <div class="existing-image-item" id="existingImage{{ image.img_order }}">
+                        <!-- <img src="{{ image.img_path }}" alt="{{ image.img_orig }}"> -->
+                        <!-- <p>{{ image.img_path }}{{ image.img_rename }}</p> -->
+                        <img src="{{ image.img_path }}{{ image.img_rename }}" alt="{{ image.img_orig }}">
+                        <div class="image-info">
+                            <span class="image-name">{{ image.img_orig }}</span>
+                            <span class="image-order">{{ '썸네일' if image.img_order == 0 else '이미지 ' + (image.img_order + 1)|string }}</span>
+                        </div>
+                        <button type="button" class="btn-remove-existing" onclick="markImageForDeletion({{ image.img_order }})">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            삭제
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="delete_images" id="deleteImages" value="">
+        </div>
+        {% endif %}
+
+        <!-- 새 이미지 추가: input에 multiple이 복수 이미지 첨부 옵션  -->
+        <div class="form-group">
+            <label for="images" class="form-label">
+                이미지 추가 (최대 총이미지 5개)
+                <span class="image-count-info" id="imageCountInfo"></span>
+            </label>
+            <div class="image-upload-area">
+                <!-- 5장까지 첨부위해 중요: input의 name을 "images"로 유지하되, multiple 속성 필수 -->
+                <input 
+                    type="file" 
+                    id="images" 
+                    name="images" 
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    multiple 
+                    class="file-input"
+                    onchange="previewNewImages(event)"
+                >
+                <label for="images" class="file-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>새 이미지 추가 (Ctrl+클릭: 여러 이미지 선택)</span>
+                </label>
+            </div>
+
+            <!-- 새 이미지 미리보기 -->
+            <div id="newImagePreview" class="image-preview-container"></div>
+        </div>
+
+        <!-- 버튼 -->
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" onclick="location.href='{{ url_for(request, 'board_detail', board_no=board.board_no) }}'">취소</button>
+            <button type="submit" class="btn-submit">수정 완료</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+console.log("SCRIPT START");
+
+// ========================================
+// 전역 변수: 첨부이미지
+// ========================================
+// 삭제할 이미지 목록
+let imagesToDelete = [];
+let newImageFiles = []; // 새로 추가할 파일들을 저장
+
+// ========================================
+// 이미지 개수 업데이트
+// ========================================
+function updateImageCountInfo() {
+    const existingCount = {{ images|length if images else 0 }};
+    const deletingCount = imagesToDelete.length;
+    const remainingExisting = existingCount - deletingCount;
+    const newCount = newImageFiles.length;
+    const totalCount = remainingExisting + newCount;
+    
+    const countInfo = document.getElementById('imageCountInfo');
+    if (countInfo) {
+        countInfo.textContent = `(현재: ${remainingExisting}개, 추가: ${newCount}개, 총: ${totalCount}/5개)`;
+        
+        // 5개 초과 시 경고 스타일
+        if (totalCount > 5) {
+            countInfo.style.color = 'red';
+        } else {
+            countInfo.style.color = '#777';
+        }
+    }
+}
+
+
+// ========================================
+// 기존 이미지 삭제 표시
+// ========================================
+function markImageForDeletion(imgOrder) {
+    const imageItem = document.getElementById(`existingImage${imgOrder}`);
+    
+    if (imagesToDelete.includes(imgOrder)) {
+        // 삭제 취소 (삭제하지 않는 이미지에 대해)
+        imagesToDelete = imagesToDelete.filter(order => order !== imgOrder); // imgOrder에 대해 삭제할지 True, False 세팅
+        imageItem.classList.remove('marked-for-deletion'); // 이 이미지는 삭제 않겠다
+        imageItem.querySelector('.btn-remove-existing').innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            삭제
+        `;
+    } else {
+        // 삭제 표시 (삭제할 이미지에 대해)
+        imagesToDelete.push(imgOrder);
+        imageItem.classList.add('marked-for-deletion'); // 이 이미지는 삭제하겠다
+        imageItem.querySelector('.btn-remove-existing').innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            취소
+        `;
+    }
+    
+    // hidden input 업데이트
+    document.getElementById('deleteImages').value = imagesToDelete.join(','); // => (JS에서 delete_images를 출력해볼것)
+    console.log("##### imagesToDelete = ", imagesToDelete);         // 예시) Array [ 0 ]
+    console.log("##### deleteImages = ", imagesToDelete.join(',')); // 예시) "0"
+
+    // 이미지 개수 업데이트
+    updateImageCountInfo();
+}
+console.log("SCRIPT DEBUG...");
+
+
+// ========================================
+// 새 이미지 미리보기
+// ========================================
+function previewNewImages(event) {
+    const files = Array.from(event.target.files);
+
+    if (files.length === 0) {
+        return;
+    }
+    
+    console.log("선택된 파일 개수:", files.length);
+    console.log("파일 목록:", files.map(f => f.name));
+
+    // 기존 이미지 개수 확인
+    const existingCount = {{ images|length if images else 0 }};
+    const deletingCount = imagesToDelete.length;
+    const remainingCount = existingCount - deletingCount;
+    
+    // 5개 초과 체크
+    if (remainingCount + files.length > 5) {
+        alert(`이미지는 최대 5개까지 가능합니다.\n현재: ${remainingCount}개, 추가 시도: ${files.length}개\n최대 ${5 - remainingCount}개까지만 추가할 수 있습니다.`);
+        event.target.value = '';
+        return;
+    }
+    
+    // 파일 크기 검증 (10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB max
+    for (let file of files) {
+        if (file.size > maxSize) {
+            alert(`파일 크기는 10MB를 초과할 수 없습니다.\n파일명: ${file.name}\n크기: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+            event.target.value = '';
+            return;
+        }
+    }
+    
+    // 새 파일 목록 저장 (전역 변수)
+    newImageFiles = files;
+
+    // 미리보기 컨테이너
+    const previewContainer = document.getElementById('newImagePreview');
+    previewContainer.innerHTML = '';
+    
+    // 각 파일 미리보기 생성    
+    files.forEach((file, index) => {
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            const previewItem = document.createElement('div');
+            previewItem.className = 'preview-item';
+            previewItem.innerHTML = `
+                <img src="${e.target.result}" alt="미리보기 ${index + 1}">
+                <div class="preview-info">
+                    <span class="preview-name">${file.name}</span>
+                    <span class="preview-size">${(file.size / 1024).toFixed(1)} KB</span>                    
+                    <span class="preview-order">새 이미지 ${index + 1}</span>
+                </div>
+                <button type="button" class="btn-remove" onclick="removeImage(${index})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>                
+            `;
+            previewContainer.appendChild(previewItem);
+        };
+        
+        reader.readAsDataURL(file);
+    });
+
+    // 이미지 개수 업데이트
+    updateImageCountInfo();    
+}
+
+function removeImage(index) {
+    // DataTransfer를 사용해서 파일 목록 재구성
+    const dt = new DataTransfer();
+    const input = document.getElementById('images');
+    const files = Array.from(input.files);
+    
+    files.forEach((file, i) => {
+        if (i !== index) {
+            dt.items.add(file);
+        }
+    });
+    
+    input.files = dt.files;
+    
+    // 미리보기 재생성
+    //previewImages({ target: input });
+    previewNewImages({ target: input });
+}
+// console.log("SCRIPT DEBUG...");
+
+// ========================================
+// 폼 제출 처리
+// ========================================
+// 폼 제출 전 검증
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById('updateForm');
+
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault(); // 기본 제출 막기
+
+            // 제목/내용 검증
+            const title = document.getElementById('boardTitle').value.trim();
+            const content = document.getElementById('boardContent').value.trim();
+            
+            if (!title) {
+                alert('제목을 입력해주세요.');
+                //e.preventDefault();
+                return;
+            }
+            
+            if (!content) {
+                alert('내용을 입력해주세요.');
+                //e.preventDefault();
+                return;
+            }
+            
+            // 이미지 개수 최종 검증
+            const existingCount = {{ images|length if images else 0 }};
+            const deletingCount = imagesToDelete.length;
+            const remainingCount = existingCount - deletingCount;
+            const newCount = newImageFiles.length;
+            const totalCount = remainingCount + newCount;
+            
+            if (totalCount > 5) {
+                alert(`이미지는 최대 5개까지만 가능합니다. (현재: ${totalCount}개)`);
+                return;
+            }
+            
+            console.log("=== 폼 제출 정보 ===");
+            console.log("기존 이미지:", existingCount);
+            console.log("삭제할 이미지:", deletingCount);
+            console.log("남은 기존 이미지:", remainingCount);
+            console.log("새 이미지:", newCount);
+            console.log("총 이미지:", totalCount);
+            console.log("==================");
+            
+            // [중요]: FormData를 사용하여 파일 전송
+            const formData = new FormData();
+            
+            // 텍스트 필드 추가
+            formData.append('board_title', title);
+            formData.append('board_content', content);
+            
+            // 삭제할 이미지 목록 추가
+            formData.append('delete_images', imagesToDelete.join(','));
+            
+            // [핵심]: 새 이미지 파일들을 하나씩 추가 (같은 name으로)
+            const fileInput = document.getElementById('images');
+            if (fileInput.files.length > 0) {
+                // FileList를 순회하며 각 파일을 추가
+                Array.from(fileInput.files).forEach((file, index) => {
+                    formData.append('images', file);
+                    console.log(`이미지 ${index + 1} 추가:`, file.name, file.size, 'bytes');
+                });
+            }
+            
+            // FormData 내용 확인 (디버깅용)
+            console.log("=== FormData 내용 ===");
+            for (let pair of formData.entries()) {
+                if (pair[1] instanceof File) {
+                    console.log(pair[0], ':', pair[1].name, '-', pair[1].size, 'bytes');
+                } else {
+                    console.log(pair[0], ':', pair[1]);
+                }
+            }
+            console.log("====================");            
+
+
+            // 제출 중 표시
+            const submitBtn = document.querySelector('.btn-submit');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '수정 중...';
+
+            // FormData를 사용하여 fetch로 전송
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+                // [주의]: Content-Type 헤더를 설정하지 않음 (브라우저가 자동으로 multipart/form-data 설정)
+            })
+            .then(response => {
+                if (response.ok) {
+                    // 성공 시 상세 페이지로 리다이렉트
+                    window.location.href = "{{ url_for(request, 'board_detail', board_no=board.board_no) }}";
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(`서버 오류: ${response.status} - ${text}`);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('수정 실패:', error);
+                alert('게시글 수정 중 오류가 발생했습니다.\n' + error.message);
+                
+                // 버튼 복구
+                submitBtn.disabled = false;
+                submitBtn.textContent = '수정 완료';
+            });
+            ////////////////////////////
+
+        });
+    }
+
+    // 초기 이미지 개수 표시
+    updateImageCountInfo();
+
+});
+console.log("SCRIPT DEBUG...1");
+
+// ========================================
+// Jinja2 변수 → JS 전역 변수: 로그인 정보
+// ========================================
+// Jinja2 변수 → JS 전역 변수
+// 숫자인 경우 const X = {{ x }};
+// 문자열인 경우 const X = "{{ x }}";
+//
+
+{% if false %} 
+// // 서버에서 렌더링된 member_no를 JS 전역변수로 선언
+//const MEMBER_NO = {{ current_user['member_no'] }}; // 숫자는 XSS 에 안전, Jinja2가 숫자를 그대로 치환, 아래 링크되는 js에서 MEMBER_NO 전역변수 접근 가능
+// //
+// // 세션에서 가져온 user 정보를 전역 JS 객체로
+// //const CURRENT_USER = {{ request.session['user'] | tojson }}; // 문자는 XSS 방지위해 | tojson 필요(tojson 필터를 사용하면 자동으로 따옴표, 이스케이프 처리)
+// //const CURRENT_USER = {{ current_user | tojson }}; // 문자는 XSS 방지위해 | tojson 필요(tojson 필터를 사용하면 자동으로 따옴표, 이스케이프 처리)
+{% endif %}
+
+// // 숫자일 때, 부모창의 Jinja2 변수를 JS 전역 변수로 설정하고, 이것을 자식창으로 전달하기 위함
+{% if board and board.board_no %}
+    window.boardNo  = {{ board.board_no }};
+    // window.boardCode = {{ board.board_code }}; 
+    window.boardCode = {{ board.board_code | tojson }}; 
+    // //window.boardTitle = {{ board.board_title }}; 
+    window.boardTitle = {{ board.board_title | tojson }}; 
+{% else %}
+    window.boardNo  = null;
+    window.boardCode = null; 
+    window.boardTitle = null; 
+{% endif %}
+
+{% if current_user and current_user.member_nickname %}
+    // current_user = Depends(login_required), # Session; in board_write_router.py
+    window.loginMemberNo = {{ current_user['member_no'] }};
+    //window.memberNickname = {{ current_user['member_nickname'] }}; 
+    window.memberNickname = {{ current_user.get('member_nickname') | tojson }}; 
+    //window.profileImg = {{ current_user['profile_img'] }}; 
+    window.profileImg = {{ current_user.get('profile_img') | tojson }}; 
+    window.beansAmount = {{ current_user['beans_amount'] }}; 
+{% else %}
+    window.loginMemberNo = null;
+    window.memberNickname = null;
+    window.profileImg = null;
+    window.beansAmount = null;
+{% endif %}
+
+console.log("freeboardUpdate.html에서 JS 전역변수 등록:", {
+    //MEMBER_NO: MEMBER_NO,
+    boardNo: window.boardNo, 
+    boardCode: window.boardCode, 
+    boardTitle: window.boardTitle, 
+    loginMemberNo: window.loginMemberNo,
+    memberNickname: window.memberNickname,
+    profileImg: window.profileImg,
+    beansAmount: window.beansAmount,
+});
+
+console.log("SCRIPT END");
+</script>
+
+<script src="{{ url_for(request, 'static', path='/js/freeboardUpdate.js') }}"></script>    
+
+{% endblock %}

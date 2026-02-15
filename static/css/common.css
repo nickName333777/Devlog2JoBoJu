@@ -1,0 +1,305 @@
+/* 공통 스타일 */
+:root { /* CSS 변수 */
+    --primary-color: #344e41ff;
+    --primary-hover: #a3b18aff;
+    --secondary-color: #a3b18aff;
+    --text-color: #000;
+    --bg-color: #ffffff;
+    --border-color: #D9D9D9;
+    --error-color: #ff0000;
+    --success-color: #008000;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+}
+
+/* 헤더 스타일 */
+#header {
+    background: white;
+    border-bottom: 2px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.logo-img-header {
+    height: 45px;
+}
+
+.search-area {
+    display: flex;
+    gap: 5px;
+}
+
+.search-area input {
+    width: 400px;
+    padding: 10px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.search-btn {
+    padding: 10px 20px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 6px;
+    font-size: 18px;
+}
+
+.search-btn:hover {
+    background: var(--primary-hover);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 알림 */
+.notification-container {
+    position: relative;
+}
+
+.notification-btn {
+    font-size: 24px;
+    position: relative;
+    padding: 8px;
+}
+
+.notification-count {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-list {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    min-width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    list-style: none;
+}
+
+/* 사용자 메뉴 */
+.user-profile-img-header {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.login-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+}
+
+.btn-login-header, .btn-signup-header {
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.3s;
+}
+
+.btn-login-header:hover, .btn-signup-header:hover {
+    background: var(--secondary-color);
+}
+
+.user-info {
+    position: relative;
+}
+
+.user-info label {
+    cursor: pointer;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    min-width: 150px;
+    margin-top: 5px;
+}
+
+#userMenuToggle:checked ~ .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.3s;
+}
+
+.dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+    background: var(--secondary-color);
+}
+
+/* 네비게이션 */
+#navigation {
+    background: var(--primary-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-menu {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    list-style: none;
+}
+
+.nav-menu li a {
+    display: block;
+    padding: 15px 25px;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.nav-menu li a:hover {
+    background: var(--primary-hover);
+}
+
+/* 푸터 */
+#footer {
+    background: #f8f9fa;
+    border-top: 1px solid var(--border-color);
+    margin-top: 60px;
+    padding: 30px 0;
+}
+
+.footer-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-content {
+    text-align: center;
+}
+
+.footer-content p {
+    margin-bottom: 10px;
+    color: #777;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: #777;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: var(--primary-color);
+}
+
+/* 컨테이너 */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 메시지 스타일 */
+.confirm {
+    color: var(--success-color) !important;
+}
+
+.error {
+    color: var(--error-color) !important;
+}
+
+/* 유틸리티 클래스 */
+.fw-600 {
+    font-weight: 600;
+}
+
+.fw-800 {
+    font-weight: 800;
+}

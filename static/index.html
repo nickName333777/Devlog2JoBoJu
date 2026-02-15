@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JBJ - 재생에너지 장비 모니터링 플랫폼</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 헤더 -->
+    <header id="header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="/index.html" class="logo">
+                    <img src="/static/images/jbj_logo.png" alt="JoBoJu Logo" class="logo-img-header">
+                </a>
+                
+                <!-- 검색 영역 -->
+                <div class="search-area">
+                    <input type="search" id="globalSearch" placehol
+                    der="검색어를 입력해주세요" autocomplete="off">
+                    <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <!-- 알림 -->
+                <div class="notification-container" id="notificationContainer" style="display: none;">
+                    <button class="notification-btn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="notification-count" id="notificationCount">0</span>
+                    </button>
+                    <ul class="notification-list" id="notificationList">
+                        <!-- 알림 목록 동적 생성 -->
+                    </ul>
+                </div>
+                
+                <!-- 로그인/사용자 메뉴 -->
+                <!-- 로그인/사용자 메뉴 by jinja2(SSR) 동적렌더링: "/member/login", "/member/signup"  -->
+                <div class="user-menu" id="userMenu">
+                    <!-- 로그인 전 -->
+                    <div class="login-menu" id="loginMenu">
+                        <a href="/member/login" class="btn-login-header">로그인</a>
+                        <span>|</span>
+                        <a href="/member/signup" class="btn-signup-header">회원가입</a>                        
+                    </div>
+                    
+                    <!-- 로그인 후: 실제 채워지는 로그인정보는 common.js(헤더내용담당)에서 동적으로 생성 -->
+                    <div class="user-info" id="userInfo" style="display: none;">
+                        <label for="userMenuToggle">
+                            <!-- <img src="/uploads{{ current_user.profile_img }}" alt="" class="user-profile-img-header" id="userProfileImgHeader">  "/uploads{{ current_user.profile_img }}"는 NS BINDING ABORTED 오류. 어차피 src=""는 common.js에서 동적생성 -->
+                            <img src="" alt="" class="user-profile-img-header" id="userProfileImgHeader">
+                            <span id="userNickname">사용자</span>
+                            <i class="fa-solid fa-caret-down"></i>
+                        </label>
+                        <input type="checkbox" id="userMenuToggle" style="display: none;">
+                        
+                        <!-- 드롭다운메뉴: 내정보/채팅/로그아웃 -->
+                        <div class="dropdown-menu">
+                            <a href="#">내 정보</a> <!-- /mypage.html -->
+                            <a href="#">채팅</a> <!-- /mypage.html -->
+                            <a href="#" id="logoutBtn">로그아웃</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 네비게이션 -->
+    <!-- navigation bar by jinja2 동적렌더링 -->
+    <nav id="navigation">
+        <ul class="nav-menu">
+            <li><a href="#">ITT</a></li>
+            <li><a href="#">업계뉴스</a></li>                  
+            <li><a href="/board/list">자유게시판</a></li> <!-- board_router.py:  /templates/board/freeboardList.html -->
+            <li><a href="#">모니터링 대시보드</a></li> <!-- /dashboard.html -->
+            <li><a href="#">데이터 분석</a></li> <!-- /analytics.html -->
+            <li><a href="#">ML/DL 모델링</a></li> <!-- /ml-modeling.html -->
+        </ul>
+    </nav>
+    
+    <!-- 메인 콘텐츠 -->
+    <main class="main-content">
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1>제이비제이 JoBoJu에 오신 것을 환영합니다</h1>
+                <p>재생에너지 장비 모니터링 플랫폼</p>
+                <!-- 내정보 by jinja2 동적렌더링 -->
+                <div class="hero-buttons">
+                    <a href="/board/list" class="btn-primary">게시판 보기</a> <!-- board_router.py:  /templates/board/freeboardList.html -->
+                    <a href="/member/signup" class="btn-secondary">회원가입</a>
+                </div>
+            </div>
+        </section>
+        
+        <section class="features-section">
+            <div class="container">
+                <h2>주요 기능</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fa-solid fa-comments fa-3x"></i>
+                        <h3>자유게시판</h3>
+                        <p>재생에너지에 관해 자유롭게 소통하고 정보를 공유하세요</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fa-solid fa-chart-line fa-3x"></i>
+                        <h3>모니터링 대시보드</h3>
+                        <p>실시간 데이터를 시각화하여 모니터링</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fa-solid fa-database fa-3x"></i>
+                        <h3>데이터 분석</h3>
+                        <p>강력한 데이터 분석 도구 제공</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fa-solid fa-brain fa-3x"></i>
+                        <h3>ML/DL 모델링</h3>
+                        <p>머신러닝/딥러닝 모델 개발 지원</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="recent-posts-section">
+            <div class="container">
+                <h2>최근 게시글</h2>
+                <div class="posts-grid" id="recentPosts">
+                    <!-- 최근 게시글 동적 로딩 -->
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- 푸터 -->
+    <footer id="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <p>Copyright &copy; 2026 제이비제이 JoBoJu</p>
+                <div class="footer-links">
+                    <a href="/about.html">프로젝트 소개</a>
+                    <span>|</span>
+                    <a href="/terms.html">이용약관</a>
+                    <span>|</span>
+                    <a href="/privacy.html">개인정보처리방침</a>
+                    <span>|</span>
+                    <a href="/contact.html">고객센터</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    console.log("SCRIPT START");
+    // JWT + Session 혼용의 경우:        
+    // // 로그인 상태유지: localStorage.getItem() by JS-CSR vs. 세션로그인상태관리 request.session.get() by jinja2-SSR
+    // // static의 경우 server의 Session 메모리 정보를 ajax로 읽어와 로그인 상태 점검한다 (게시글 작성/수정시 챗봇사용의 경우와 유사)
+
+    // for JWT(static, index.html) + Session(jinja2, 그외html들) 혼용시 서버세션 유효한지 check(/api/session/check) on 2026/02/08 
+    async function syncAuthState() {
+        const token = localStorage.getItem('access_token');
+
+        // JWT자체가 없으면 체크할 필요없음
+        if (!token) return;
+
+        try {
+            const res = await fetch('/api/session/check', {
+                credentials: 'include' // <===세션 쿠키 전달 필수
+            });
+
+            const data = await res.json();
+
+            if (!data.loggedIn) {
+                // 서버 세션 만료 → JWT도 정리
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('loginMember');
+
+                alert('로그인이 만료되었습니다.');
+                location.href = '/member/login';
+            }
+        } catch (e) {
+            console.error('세션 동기화 실패', e);
+        }
+    }
+    //syncAuthState();
+
+    // 페이지 로드 시 실행
+    document.addEventListener('DOMContentLoaded', async function() {
+        //await loadUserInfo();
+        await syncAuthState();
+    });
+
+    console.log("SCRIPT END");
+    </script>
+    
+    
+    <script src="/static/js/common.js" defer></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

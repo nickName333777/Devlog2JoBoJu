@@ -1,0 +1,41 @@
+/* 페이지 상단 */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* 모니터링 대시보드 헤더 */
+.monitoring-dashboard-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.monitoring-dashboard-header  h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.monitoring-dashboard-description {
+    color: #7f8c8d;
+    font-size: 1rem;
+}
+
+/* 탭 css */
+.tab-list {
+    display: flex;
+    gap: 8px;
+}
+
+[role="tab"] {
+    padding: 8px 12px;
+    cursor: pointer;
+    border: 1px solid #000;
+    border-radius: 4px;  
+}
+
+[role="tab"][aria-selected="true"] {
+    border-bottom: 2px solid #344e41;
+    font-weight: bold;
+}

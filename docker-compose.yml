@@ -1,0 +1,156 @@
+#version: '3.8' # the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+
+services: # 이 아래에 여러 컨테이너(서비스)를 나열한다.
+  ##### => oracle-db (또는 jbj-oracle)서비스는 기존에 있는 'oracle21c' 컨테이너를 그대로 이용하겠다
+  ### 'oracle21c'컨테이너는 아래 명령어로 이전에 독립적으로 생성된것을 재사용
+  ### //  컨테이너를 백그라운드에서 실행해야 할때는 -d 옵션을 사용(터미널 ctrl+C 클로즈해도 도커돌아가게)
+  ###  $ docker run -d --name oracle21c \
+  ###      -p 1521:1521 \
+  ###      -e ORACLE_PWD=YourSecurePassword123 \
+  ###      -e ORACLE_CHARACTERSET=AL32UTF8 \
+  ###      -v /home/oracle/oradata:/opt/oracle/oradata \
+  ###      container-registry.oracle.com/database/express:21.3.0-xe 
+
+  #Oracle Database(image-name: container-registry.oracle.com/database/express:21.3.0-xe,  container-name: jbj-oracle => oracle21c 로) 
+  oracle-db:
+    image: container-registry.oracle.com/database/express:21.3.0-xe
+    container_name: oracle21c  # 기존 컨테이너 이름 사용
+    environment:
+      - ORACLE_PWD=YourSecurePassword123 # 기존 비밀번호 .env 참조
+      - ORACLE_CHARACTERSET=AL32UTF8
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    volumes:
+      #- oracle-data:/opt/oracle/oradata  #  -v /home/oracle/oradata:/opt/oracle/oradata
+      - /home/oracle/oradata:/opt/oracle/oradata  # 기존 호스트 경로 사용  (로컬에 /home/oracle/oradata 존재해야함)
+      #- ./init_scripts:/opt/oracle/scripts/startup # 컨테이너 시작할 때마다
+      - ./init_scripts:/opt/oracle/scripts/setup # DB 최초 생성 시 1회만
+    networks:
+      - jbj-network
+    healthcheck:
+      #test: ["CMD", "sqlplus", "-L", "sys/YourSecurePassword123@//localhost:1521/XEPDB1 as sysdba", "@/dev/null"] # exec 형태 (쉘 안 씀)
+      #test: ["CMD-SHELL", "echo 'SELECT 1 FROM dual;' | sqlplus -s sys/YourSecurePassword123@//localhost:1521/XEPDB1 as sysdba || exit 1"] # 쉘로 실행 (sh -c)하여 파이프 | 사용
+      test: >
+        CMD-SHELL
+        echo "SELECT 1 FROM dual;" |
+        sqlplus -s sys/YourSecurePassword123@//localhost:1521/XEPDB1 as sysdba
+
+      interval: 30s
+      timeout: 10s
+      #retries: 5
+      retries: 10
+      start_period: 120s
+
+
+  # FastAPI Backend(image-name: from Dockerfile,  container-name: jbj-fastapi) 
+  fastapi-backend: # 서비스(컨테이너) 논리적 이름. 다른 서비스에서 depends_on: - fastapi-backend 같은 식으로 참조할 수 있다.
+    build: # image build
+      context: .
+      dockerfile: Dockerfile
+    container_name: jbj-fastapi
+    environment:
+      - DB_USER=your_userId # for Oracle DB, 실제값은 모두 database.py에서  .env로부터 읽어와 사용
+      - DB_PASSWORD=your_userId_password 
+      - DB_HOST=oracle21c  # 기존 컨테이너 이름 (not 'oracle-db' nor 'jbj-oracle')
+      - DB_PORT=1521
+      - DB_SERVICE=XEPDB1
+      - SMTP_SERVER=smtp.gmail.com # for EmailAuth, 실제값은 모두 email-router.py에서 .env로부터 읽어와 사용
+      - SMTP_PORT=587
+      - SMTP_USER=your@gmail.com
+      - SMTP_PASSWORD=your_app_password
+      - KAKAO_REST_API_KEY=your_key # for 카카오 소셜로그인, 실제값은 모두 kakao_service.py에서 .env로부터 읽어와 사용
+      - KAKAO_CLIENT_SECRET=your_client_secret
+      - KAKAO_REDIRECT_URI=your_callback_uri
+      
+    ports:
+      - "8880:8880"
+      #- "8000:8000"      
+    volumes:
+      - .:/app
+      - ./static:/app/static # redundant?
+      - ./templates:/app/templates  # redundant?
+      - ./uploads:/mnt/user-data/uploads  # 업로드 파일 저장 
+    env_file:
+      - .env           
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+    networks:
+      - jbj-network # 원하는 이름으로 네트웍 이름 변경
+    extra_hosts: #extra_hosts 는 컨테이너안에 /etc/hosts 에 수동으로 엔트리를 추가하는 기능이다.
+      - "oracle21c:host-gateway"  # 호스트에서 실행 중인 경우    
+      # "oracle21c:host-gateway" 는 일반 IP가 아니라 host-gateway 라는 특별 키워드를 사용한다.
+      # Docker 는 host-gateway 를 컨테이너가 바라볼 때의 “호스트 머신 IP” 로 치환한다.
+      # Docker Desktop 이든, Linux 서버든, 컨테이너 입장에서 “도커를 돌리고 있는 그 호스트” 로 향하는 게이트웨이 IP를 의미.  
+      # 따라서, 컨테이너 안 /etc/hosts 에 "호스트의 게이트웨이 IP oracle21c" 항목을 추가하는 설정의 효과를 낸다 
+    restart: unless-stopped # 컨테이너가 예기치 않게 내려가면 자동 재시작 사용자가 명시적으로 docker compose stop 등으로 멈추지 않는 한 계속 살아있도록 하는 정책.
+
+
+  # Elasticsearch(image-name: docker.elastic.co/elasticsearch/elasticsearch:8.11.0,  container-name: jbj-elasticsearch) 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: jbj-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - /home/elasticsearch/esdata:/usr/share/elasticsearch/data  # host 폴더에 마운트 (로컬에 /home/elasticsearch/esdata 존재해야함)
+      #- es-data:/usr/share/elasticsearch/data # Docker가 자동 관리하는 볼륨
+    networks:
+      - jbj-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Kibana(image-name: docker.elastic.co/kibana/kibana:8.11.0 ,  container-name: jbj-kibana) 
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: jbj-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - jbj-network
+    restart: unless-stopped
+
+  # Logstash (Optional - 추후 로그 수집용)(image-name: docker.elastic.co/logstash/logstash:8.11.0,  container-name: jbj-logstash) 
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: jbj-logstash
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/config:/usr/share/logstash/config  #  # 디렉토리 → 디렉토리:  Docker 공식 Logstash 이미지는 config 디렉토리 전체를 마운트하도록 설계되어 있다.
+      #- ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+    #environment:
+    #  - "LS_JAVA_OPTS=-Xmx256m -Xms256m"      
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    depends_on:
+      - elasticsearch
+    networks:
+      - jbj-network
+    restart: unless-stopped
+
+networks:
+  jbj-network: # 이 이름으로 네트웍이름 고정됨
+    driver: bridge
+
+# => 기존 컨테이너(oracle21c)를 계속 사용한다면: volumes 섹션에 정의 필요 없음! 서비스 정의에서 직접 호스트 경로 사용
+#
+# 새 컨테이너(oracle-db 서비스정의 or jbj-oracle 컨테이너이름)를 사용할때:
+# Named Volume (Docker 관리): 위치: /var/lib/docker/volumes/oracle-data/, 장점: Docker가 관리, 백업 쉬움, 단점: 직접 접근 어려움
+#volumes:
+  #oracle-data: # Docker가 자동으로 관리하는 볼륨 (cf: /home/oracle/oradata, # 호스트 경로 직접 사용 => oracle21c에서 이미 그렇게 하고 있음)
+  #es-data: # Docker가 자동으로 관리하는 볼륨 (cf: /home/elasticsearch/esdata, # 호스트 경로 직접 사용 X)
