@@ -257,7 +257,7 @@ KDT training 과정에서 자바 기반 웹앱 개발과 파이선 기반 데이
 
 ---
 
-## 🔑 중요한 설계/포팅 결정
+## 중요한 설계/포팅 결정
 
 ### 1. 아키텍처 변경
 
@@ -688,12 +688,12 @@ SEQ_TOKEN_USAGE_NO → 토큰 사용 이력 ID
 
 | 변경 사항 | 재시작 필요? | 명령어 |
 |-----------|-------------|--------|
-| Python 코드 (.py) | ❌ 불필요 | 자동 리로드 (uvicorn --reload) |
-| Static 파일 (HTML/CSS/JS) | ❌ 불필요 | 브라우저 새로고침 (Ctrl+Shift+R) |
-| .env 파일 | ⚠️ restart만 | `docker-compose restart fastapi-backend` |
-| requirements.txt | ✅ 필요 | `docker-compose build --no-cache fastapi-backend && docker-compose up -d` |
-| Dockerfile | ✅ 필요 | `docker-compose down && docker-compose build --no-cache && docker-compose up -d` |
-| docker-compose.yml | ✅ 필요 | `docker-compose down && docker-compose up -d` |
+| Python 코드 (.py) |  불필요 | 자동 리로드 (uvicorn --reload) |
+| Static 파일 (HTML/CSS/JS) |  불필요 | 브라우저 새로고침 (Ctrl+Shift+R) |
+| .env 파일 |  restart만 | `docker-compose restart fastapi-backend` |
+| requirements.txt |  필요 | `docker-compose build --no-cache fastapi-backend && docker-compose up -d` |
+| Dockerfile |  필요 | `docker-compose down && docker-compose build --no-cache && docker-compose up -d` |
+| docker-compose.yml |  필요 | `docker-compose down && docker-compose up -d` |
 
 ### 개발 시작 절차
 ```bash
@@ -709,8 +709,8 @@ docker compose down --volumes --remove-orphans && docker network prune -f && doc
 docker exec -it jbj-fastapi ping -c 3 oracle21c
 
 # 2-2. 로그 확인 (터미널 1)
-#docker-compose logs -f fastapi-backend
-docker logs fastapi-backend
+docker logs oracle21c
+#docker logs fastapi-backend
 docker logs jbj-fastapi
 
 # 3. 코드 수정 (VS Code 또는 nano)
