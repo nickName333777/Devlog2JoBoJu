@@ -2,7 +2,7 @@
 
 ## 동기
 
-KDT training 과정에서 자바 기반 웹앱 개발과 파이선 기반 데이터 분석 및 ML/DL 파트를 하나의 웹앱 개발로 통합하기에 무리가 되는 부분들이 있어서, 이후 future direction의 일환으로 Java Spring-Boot 기반 Devlog 프로젝트 웹앱에서 내가 담당했던 부분들을 중심으로 일부를 Python FastAPI 기반 웹앱으로 Porting하는 작업을 수행해 보았다. 여기 파이선 웹앱으로 포팅된 기존 부분들에 파이썬 기반 데이터분석, ML/DL등의 내용들을 채워 계속 통합/확장해 나가 볼 생각이다.
+KDT training 과정에서 자바 기반 웹앱 개발과 파이선 기반 데이터 분석 및 ML/DL 파트를 하나의 웹앱 개발로 통합하기에는 무리가 되는 부분들이 있어서, 이후 future direction의 일환으로 Java Spring-Boot 기반 Devlog 프로젝트 웹앱에서 내가 담당했던 부분들을 중심으로 일부를 Python FastAPI 기반 웹앱으로 Porting하는 작업을 수행해 보았다. 여기 파이선 웹앱으로 포팅된 기존 부분들에 파이썬 기반 데이터분석, ML/DL등의 내용들을 채워 계속 확장/톻합해 나가 볼 생각이다.
 
 
 ### SpringBoot 기반 웹 애플리케이션을 FastAPI 기반으로 포팅
