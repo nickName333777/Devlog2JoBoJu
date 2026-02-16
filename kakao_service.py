@@ -119,7 +119,7 @@ class KakaoService:
                 required_total_exp=level.required_total_exp
             )
             
-            # MemberLoginResponseMinimal 생성 # JWT 토큰생성 후 최소 필요한 로그인정보들 넘겨줄때 (헤더 정보 경우) (Session 에 로그인정보 저장의 경우와 같다)
+            # MemberLoginResponseMinimal 생성 # JWT 토큰생성 후 최소 필요한 로그인정보들 넘겨줄때 (헤더 정보 경우) 
             member_dto = MemberLoginResponseMinimal(
                 member_no=member.member_no,
                 member_email=member.member_email,

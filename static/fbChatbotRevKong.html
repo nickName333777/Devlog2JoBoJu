@@ -104,16 +104,11 @@
                 // window 전역변수
                 window.loginMemberNo = userData.member_no;
                 window.memberNickname = userData.member_nickname;
-                // window.profileImg = userData.profile_img || '/static/images/user.png';
-                //window.profileImg = "/static" + userData.profile_img || '/static/images/user.png'; // CSR static rendering에는 "/static" prefix필요 
-                //window.profileImg = "/uploads" + userData.profile_img || '/static/images/user.png'; //  prefix필요 
                 window.profileImg = `/uploads${userData.profile_img}` || '/static/images/user.png'; //  prefix필요 
                 window.beansAmount = userData.beans_amount || 0;
                 // 전역변수
                 loginMemberNo = userData.member_no;
                 memberNickname = userData.member_nickname;
-                // profileImg = userData.profile_img || '/static/images/user.png';
-                //profileImg = "/static" + userData.profile_img || '/static/images/user.png'; // CSR static rendering에는 "/static" prefix필요 
                 profileImg = `/uploads${userData.profile_img}` || '/static/images/user.png'; //  prefix필요 
 
                 beansAmount = userData.beans_amount || 0;
@@ -133,7 +128,6 @@
                 // front-tag에 값 업데이트
                 // 커피콩 잔액 UI 업데이트
                 const beansAmountElement = document.getElementById('beansAmount'); // 이거는 초기에 항상 0 이므로 유효하지않음
-                //const beansAmountElement = window.beansAmount ; // 이거는 로그인 회원 정보에서 받아오므로 유효
 
                 if (beansAmountElement) {
                     beansAmountElement.textContent = `콩잔액: ${window.beansAmount.toLocaleString()} 포인트`;
@@ -150,17 +144,8 @@
 
     // 부모 창에서 데이터 가져오기
     function loadParentData() {
-        // if (window.opener && window.opener.globalData) {
-        //     window.boardNo = window.opener.globalData.boardNo || window.opener.globalData.boardNoGlobal;
-        //     window.loginMemberNo = window.opener.globalData.loginMemberNo || window.opener.globalData.loginMemberNoGlobal;
-            
-        //     console.log("부모 창 데이터:", {
-        //         boardNo: window.boardNo,
-        //         loginMemberNo: window.loginMemberNo
-        //     });
-        // }
 
-        if (window.opener && window.opener.globalData) { // truthy: A || B --> A가 truthy면 A반환, A가 falsy면 B 반환 (우리는 실제 B 값 있다)
+        if (window.opener && window.opener.globalData) { // truthy: A || B --> A가 truthy면 A반환, A가 falsy면 B 반환
             window.boardNo = window.opener.globalData.boardNo || window.opener.globalData.boardNoGlobal;
             //window.boardCode = window.opener.globalData.boardCode || window.opener.globalData.boardCodeGlobal;
             //window.boardTitle = window.opener.globalData.boardTitle || window.opener.globalData.boardTitleGlobal;
@@ -193,7 +178,6 @@
 </script>
 
 <!-- fbChatbot.js 추가 -->
-<!-- <script src="/static/js/fbChatbot.js"></script> -->
 <script src="/static/js/fbChatbot.js" defer></script>
 
 </body>

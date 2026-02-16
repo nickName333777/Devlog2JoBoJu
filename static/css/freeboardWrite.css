@@ -50,7 +50,6 @@
     background: #fff;
 }
 .option-btn {
-    /* width: 25%; */
     width: 200px;
     background: #344e41ff;
     border: 1px solid #344e41ff;
@@ -70,7 +69,6 @@
 
 .select-box {
     position: relative;
-    /* width: 16%; */
     width: 140px;
     margin-right: 20px;    
 }
@@ -96,9 +94,7 @@
 .select-box::after { /* .select-box 요소 뒤에 가상의 요소로 커스텀 화살표 생성: 실제 HTML에는 없지만 화면에는 보임*/
     content: "";
     position: absolute;
-    /* right: 0px; */
     right: -72%;
-    /* top: 52%; */
     top: 50%;
     transform: translateY(-50%);
 

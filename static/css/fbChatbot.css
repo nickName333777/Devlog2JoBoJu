@@ -2,7 +2,6 @@
 
 /* 전체 컨테이너 */
 .chatbot-container {
-    /* width: 840px; */
     width: 640px;
     margin: 20px auto;
     border: 2px solid #3a5a40ff;
@@ -47,10 +46,6 @@
     margin-left: 50px;
     margin-right: 10px;
 }
-
-/* .option-btn:hover {
-    background: #a3b18aff;
-} */
 
 .select-box {
     position: relative;
@@ -215,7 +210,6 @@ p.token-info {
     border: 1px solid #ddd;
     border-bottom-left-radius: 6px;
     border-top-left-radius: 6px;
-    /* font-size: 24px; */
     font-size: 1rem;
     resize: none;
 }
@@ -232,7 +226,6 @@ p.token-info {
 .send-btn img {
     /* send버튼 이미지 크기 */
     width: 40px;
-    /* height: 40px; */
 }
 
 .send-btn:hover {

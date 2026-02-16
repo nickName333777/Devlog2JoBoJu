@@ -16,7 +16,6 @@ from typing import Dict, Optional
 from openai import OpenAI
 from sqlalchemy.orm import Session
 
-#from models_chatbot import CbSession, CbTokenUsage
 from models import CbSession, CbTokenUsage
 from models import Member
 

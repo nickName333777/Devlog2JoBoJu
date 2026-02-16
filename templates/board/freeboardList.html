@@ -39,7 +39,6 @@
         </div>
 
         {% if current_user %}
-        <!-- {  % if current_user is defined or current_user %  } -->
         <a href="{{ url_for(request, 'board_write_page') }}" class="btn-write" id="writeBtn">글쓰기</a>
         {% endif %}
     </div>
@@ -66,11 +65,8 @@
                     
                     <div class="board-meta">
                         <div class="board-author">
-                            <!-- <p>{{  item.board.author }}</p>         -->
-                            <!-- <p>{{  item.board.author.profile_img  }}</p>         -->
                             {% if item.board.author.profile_img %}
                                 <img src="/uploads{{ item.board.author.profile_img }}" alt="프로필" class="author-profile">
-                                <!-- <img src="/uploads{{ item.board.author.member_no }}" alt="프로필" class="author-profile"> -->
                             {% else %}
                                 <img src="{{ url_for(request, 'static', path='/images/user.png') }}" alt="프로필디폴트" class="author-profile">
                             {% endif %}
@@ -162,7 +158,6 @@
 
 
 <script>
-// // 헤더 로그인 상태관리 by Session ==> ajax 딜레이로 별로 사용성이 않좋다. 그냥 원래대로 localStrorage쓰는걸로.
 {% if false %} // jinja2에서 주석 처리법 (또는 {#  #} 로감싼다 b/c JS 주석 // 있어도 jinja2가 구문실행하는거 방지)
 // let loginMemberNo = {{ current_user['member_no'] }};
 // let memberNickname = {{ current_user['member_nickname'] | tojson }}; 
@@ -186,7 +181,6 @@
 // 정렬 변경
 function changeSort(sortBy) {
     const url = new URL(window.location.href);
-    //console.log("changeSort(sortBy), window.location.href: ",  window.location.href); //  http://localhost:8880/board/list
     url.searchParams.set('sort_by', sortBy);
     url.searchParams.set('page', '1'); // 정렬 변경 시 1페이지로
     window.location.href = url.toString();

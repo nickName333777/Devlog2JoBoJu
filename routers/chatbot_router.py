@@ -37,10 +37,6 @@ from chatbot_service import ChatbotService
 #from core.templates import templates # chatbot은 jinja2를 쓰지않고 FileResponse를 사용한 CSR 정적 렌더링을한다
 
 
-#from auth import get_current_user_optional # JWT
-# loginMember Session에 저장
-from core.dependencies import login_required, admin_required # Session
-
 # 로깅 설정
 logger = logging.getLogger(__name__)
 
@@ -75,10 +71,7 @@ async def popup_kong_chatbot():
 # ==> INFO: 172.19.0.1:57526 - "POST /api/chatbot/session/start HTTP/1.1" 422 Unprocessable Entity발생
 @router.post("/session/start", response_model=SessionStartResponse)
 async def start_session(
-    # request: CbSessionCreate,
     body: CbSessionCreate,
-    #current_user: Optional[Member] = Depends(get_current_user_optional),  # JWT
-    #current_user: Optional[Member] = Depends(login_required), # Session (부모창의 경우만 유효)
     req: Request,
     db: Session = Depends(get_db)
 ):
@@ -105,7 +98,6 @@ async def start_session(
         logger.info(f"챗봇 세션 시작 요청 - 회원: {current_user['member_no']}, 유형: {body.cb_session_type}, 게시글유형: {body.cb_board_type}, 게시글번호: {body.board_no}")
         
         # 세션 생성
-        #from sqlalchemy import text
         # 1) Sequence 직접 호출
         result = db.execute(text("SELECT SEQ_CB_SESSION_NO.NEXTVAL FROM dual"))
         new_id = result.scalar()  # 실제 시퀀스 값 (int)
@@ -147,8 +139,6 @@ async def start_session(
 @router.post("/session/end/{session_id}", response_model=SessionEndResponse)
 async def end_session(
     session_id: int,
-    #current_user: Optional[Member] = Depends(get_current_user_optional),# JWT
-    # current_user: Optional[Member] = Depends(login_required), # Session
     req: Request,
     db: Session = Depends(get_db)
 ):
@@ -216,8 +206,6 @@ async def end_session(
 async def chat(
     session_id: int,
     request: Request,  # body를 text/plain으로 받기 위함
-    #current_user: Optional[Member] = Depends(get_current_user_optional),# JWT
-    # current_user: Optional[Member] = Depends(login_required), # Session
     db: Session = Depends(get_db)
 ):
     """
@@ -261,7 +249,6 @@ async def chat(
         
         # KONG 타입: 커피콩 잔액 체크
         if cb_session_type == "KONG" and current_user:
-            # if current_user.beans_amount <= 0:
             if current_user['beans_amount'] <= 0:
                 raise HTTPException(status_code=402, detail="커피콩이 부족합니다.")
         
@@ -293,8 +280,6 @@ async def chat(
 
 @router.get("/freeboard/usage", response_model=TokenUsageSummaryResponse)
 async def get_usage(
-    #current_user: Optional[Member] = Depends(get_current_user_optional),# JWT
-    #current_user: Optional[Member] = Depends(login_required), # Session
     request: Request,
     db: Session = Depends(get_db)
 ):
@@ -314,7 +299,6 @@ async def get_usage(
         raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
     
     try:
-        # result = ChatbotService.get_usage_by_member(current_user.member_no, db)
         result = ChatbotService.get_usage_by_member(current_user['member_no'], db)
         return TokenUsageSummaryResponse(**result)
         
@@ -333,8 +317,6 @@ async def get_usage(
 @router.post("/freeboard/updateBeansAmount", response_model=BeansUpdateResponse)
 async def update_beans_amount(
     request: BeansUpdateRequest, # 사실 이거는 Request.body 임 => body: BeansUpdateRequest 로 쓰는것이 더 정확
-    #current_user: Optional[Member] = Depends(get_current_user_optional),# JWT
-    # current_user: Optional[Member] = Depends(login_required), # Session
     req: Request,
     db: Session = Depends(get_db)
 ):

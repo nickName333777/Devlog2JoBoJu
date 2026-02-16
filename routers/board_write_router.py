@@ -29,7 +29,6 @@ bcu_router = APIRouter(prefix="/board2", tags=["게시판-작성/수정"])
 @bcu_router.get("/write", response_class=HTMLResponse, name="board_write_page")
 async def board_write_page(
     request: Request,
-    #current_user = Depends(get_current_user_optional) # JWT
     current_user = Depends(login_required) # Session
 ):
     """게시글 작성 페이지"""
@@ -55,7 +54,6 @@ async def board_write_submit(
     board_title: str = Form(..., description="게시글 제목"),
     board_content: str = Form(..., description="게시글 내용"),
     images: List[UploadFile] = File(None, description="이미지 파일 (최대 5개)"),
-    #current_user = Depends(get_current_user_optional), # JWT
     current_user = Depends(login_required), # Session
     db: Session = Depends(get_db)
 ):
@@ -127,7 +125,6 @@ async def board_write_submit(
 async def board_update_page(
     request: Request,
     board_no: int,
-    #current_user = Depends(get_current_user_optional), # JWT
     current_user = Depends(login_required), # Session
     db: Session = Depends(get_db)
 ):
@@ -154,7 +151,6 @@ async def board_update_page(
         return RedirectResponse(url="/board/list", status_code=303)
     
     # 작성자 확인
-    # if board.member_no != current_user['memberNo']:
     if board.member_no != current_user['member_no']:
         # 권한 없음 → 상세 페이지로
         return RedirectResponse(url=f"/board/{board_no}", status_code=303)
@@ -196,9 +192,6 @@ async def board_update_submit(
     board_content: str = Form(...),
     delete_images: Optional[str] = Form(None, description="삭제할 이미지 순서 (쉼표 구분)"),
     images: List[UploadFile] = File(None),
-    #delete_images: str = Form(default=""),  # 삭제할 이미지 목록 (쉼표 구분)
-    #images: List[UploadFile] = File(default=[]),    
-    #current_user = Depends(get_current_user_optional), # JWT
     current_user = Depends(login_required), # Session
     db: Session = Depends(get_db)
 ):
@@ -216,7 +209,6 @@ async def board_update_submit(
         # 삭제할 이미지 순서 파싱
         delete_image_orders = []
         if delete_images:
-            #delete_image_orders = [int(x.strip()) for x in delete_images.split(",") if x.strip()]
             try:
                 delete_image_orders = [int(order) for order in delete_images.split(',') if order.strip()]
             except ValueError:
@@ -239,7 +231,6 @@ async def board_update_submit(
             board_no=board_no,
             board_title=board_title,
             board_content=board_content,
-            # member_no=current_user['memberNo'],
             member_no=current_user['member_no'],
             delete_image_orders=delete_image_orders if delete_image_orders else None,
             new_images=valid_images if valid_images else None

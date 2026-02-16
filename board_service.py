@@ -84,7 +84,6 @@ class BoardService:
                 
                 # 3. 이미지 업로드 처리(# 이미지 임시 업로드)
                 if images:
-                    #self._upload_images(new_board.board_no, images)
                     temp_files = self._upload_images_temp(
                         board_no=new_board.board_no,
                         images=images
@@ -99,7 +98,6 @@ class BoardService:
             # =============================
             # 4. 커밋 (commit 성공 이후)
             # =============================
-            #self.db.commit() #  # with self.db.begin(): # 자동 commit or rollback 
             self._finalize_images(temp_files)
             
             self.db.refresh(new_board)
@@ -189,10 +187,10 @@ class BoardService:
     # 이미지 메타데이터 DB 저장    
     def _save_image_metadata(self, board_no: int, 
                             temp_files: list[Path],
-                            images: List[UploadFile]): # for img_orig by original_filename = Util.sanitize_filename(image.filename) for image in images
+                            images: List[UploadFile]): 
                                                     
-        for idx, temp_path in enumerate(temp_files):# 예시: temp_path = Path(self.upload_dir) / "temp" / "boards" / str(board_no)
-                                                    # self.upload_dir = os.getenv("UPLOAD_DIR", "/mnt/user-data/uploads")
+        for idx, temp_path in enumerate(temp_files):
+                                                
             # 원본 파일명 for img_orig
             img = images[idx]
             original_filename = Util.sanitize_filename(img.filename)
@@ -201,10 +199,9 @@ class BoardService:
             print("########### img_path calc: ", str(temp_path.parent).replace(f"{self.upload_dir}/temp", ""))
             # 이미지 객체 생성
             board_img = BoardImg(
-                # temp_path는 Path()객체, Path("a/bbb/ccc.jpg").parent => Path("a/bbb") 
                 img_path=str(temp_path.parent).replace(f"{self.upload_dir}/temp", "") + "/",
                 img_orig=original_filename,
-                img_rename=temp_path.name, # temp_path는 Path()객체, Path("a/bbb/ccc.jpg").name => ccc.jpg은 파일명
+                img_rename=temp_path.name, # temp_path는 Path()객체, 파일명
                 img_order=idx,
                 board_no=board_no
             )
@@ -283,9 +280,7 @@ class BoardService:
                 
                 # DB에 이미지 정보 저장
                 board_img = BoardImg(
-                    # img_path=f"/boards/{board_no}/{renamed_filename}", # 각 게시글별 업로드 이미지관리 폴더 생성한 경우
-                    img_path=f"/images/board/freeboard/",   # "/boards/{board_no}/{renamed_filename}" => "/images/board/freeboard/"
-                                                            # 현 oracle Board_Img 데이터베이스에 맞게
+                    img_path=f"/images/board/freeboard/",   
                     img_orig=original_filename,
                     img_rename=renamed_filename,
                     img_order=idx,  # 0: 썸네일, 1~4: 서브 이미지
@@ -362,7 +357,6 @@ class BoardService:
                 # 이미지 삭제 처리 (DB만, 파일 X)
                 # =============================
                 if delete_image_orders:
-                    #self._delete_images(board_no, delete_image_orders) # 이건 절대하면 않됨
                     delete_targets = self.db.query(BoardImg).filter(
                         BoardImg.board_no == board_no,
                         BoardImg.img_order.in_(delete_image_orders)
@@ -384,34 +378,22 @@ class BoardService:
                     ).count()
                     
                     
-                    # #####
-                    # existing_count = len(current_count)
-                    # delete_count = len(delete_image_orders)
-                    # remaining_existing_count = existing_count - delete_count                                        
-                    # if remaining_existing_count + len(new_images) > self.max_images:
-
                     if current_count + len(new_images) > self.max_images:
                         raise FileUploadException(
                             f"이미지는 최대 {self.max_images}개까지 가능합니다."
                         )
                     
                     # 새 이미지 순서 계산 (기존 이미지 다음부터)
-                    # max_order = self.db.query(BoardImg).filter(
-                    #     BoardImg.board_no == board_no
-                    # ).count()
                     max_order = current_count
                     
                     # 이미지 업로드 (순서 재조정)
                     for idx, image in enumerate(new_images):
-                        # self._upload_single_image(board_no, image, max_order + idx) # temp에 잠시 업로드파일 보관
                         board_img, saved_path = self._upload_single_image(
                             board_no, image, max_order + idx
                         )
-                        uploaded_files.append(saved_path) # save_path = save_dir / renamed_filename # Path(self.upload_dir) / "images/board/freeboard" / renamed_filename             
+                        uploaded_files.append(saved_path)       
                 
-                # with self.db.begin() 블록 종료에 의한 자동반영이전에 강제 반영하고 싶을때
                 self.db.flush() # 같은 Session()에서만
-                #self.db.commit()
                 
                 # 이미지 삭제 처리 후 img_order 재설정 (thumbnail 이미지 삭제경우 대비)
                 # =============================
@@ -432,14 +414,12 @@ class BoardService:
                 self.db.flush() # 같은 Session()에서만
                 self.db.commit()
                 
-            #self.db.commit() # with self.db.begin(): # 자동 flush&commit(dirty checking, too) or rollback   
             # =============================
             # commit 성공 이후
             # =============================
 
             # 삭제 이미지 실제 파일 삭제
             for img in delete_targets:
-                # file_path = Path(self.upload_dir) / img.img_path.lstrip("/") # folder명 (현 Board_Img 테이블에서)
                 file_path = Path(self.upload_dir) / img.img_path.lstrip("/")  / img.img_rename.lstrip("/") # file명 (현 Board_Img 테이블에서)
                 if file_path.exists():
                     file_path.unlink()                
@@ -468,7 +448,6 @@ class BoardService:
             raise InvalidFileExtensionException(f"허용되지 않은 파일 형식입니다.")
         
         renamed_filename = Util.file_rename_uuid(original_filename)     
-        # save_dir = Path(self.upload_dir) / "boards" / str(board_no) # 각 게시글별 업로드 이미지관리 폴더 생성한 경우
         save_dir = Path(self.upload_dir) / "images/board/freeboard"   # 현 oracle Board_Img 데이터베이스에 맞게  
         save_dir.mkdir(parents=True, exist_ok=True)
         save_path = save_dir / renamed_filename # Path(self.upload_dir) / "images/board/freeboard" / renamed_filename
@@ -478,7 +457,6 @@ class BoardService:
                 shutil.copyfileobj(image.file, buffer)
             
             board_img = BoardImg(
-                # img_path=f"/boards/{board_no}/{renamed_filename}", # 각 게시글별 업로드 이미지관리 폴더 생성한 경우
                 img_path=f"/images/board/freeboard/", # 현 oracle Board_Img 데이터베이스에 맞게  
                 img_orig=original_filename,
                 img_rename=renamed_filename,
@@ -487,37 +465,10 @@ class BoardService:
             )
             
             self.db.add(board_img)
-            return board_img, save_path # save_path = save_dir / renamed_filename # Path(self.upload_dir) / "images/board/freeboard" / renamed_filename
+            return board_img, save_path 
             
         except Exception as e:
             if save_path.exists():
                 save_path.unlink()
             raise FileUploadException(f"파일 업로드 실패: {str(e)}")
     
-    
-    # def _delete_images(self, board_no: int, image_orders: List[int]): # ==> 사용안함. commit 실패 시 복구 불가, 데이터 손상위험 (update에서는 절대 사용하면 안 됨)
-    #     """
-    #     이미지 삭제 (DB + 파일 시스템)
-        
-    #     Args:
-    #         board_no: 게시글 번호
-    #         image_orders: 삭제할 이미지 순서 리스트
-    #     """
-    #     from exceptions import ImageDeleteException
-        
-    #     images = self.db.query(BoardImg).filter(
-    #         BoardImg.board_no == board_no,
-    #         BoardImg.img_order.in_(image_orders)
-    #     ).all()
-        
-    #     for image in images:
-    #         # 파일 삭제
-    #         file_path = Path(self.upload_dir) / image.img_path.lstrip("/")
-    #         try:
-    #             if file_path.exists():
-    #                 file_path.unlink()
-    #         except Exception as e:
-    #             raise ImageDeleteException(f"이미지 파일 삭제 실패: {str(e)}")
-            
-    #         # DB 삭제
-    #         self.db.delete(image)

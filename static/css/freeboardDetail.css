@@ -102,11 +102,9 @@
     align-items: center;
     gap: 5px;
 
-    /*  */
     flex-direction: row;
     justify-content: flex-start; 
     /* svg icon 사이즈에 영향 */
-    /* width: 200px; */
     width: 50%; 
 
 }
@@ -310,12 +308,6 @@
     댓글 작성 폼 (루트 + 답글 공유)
    ============================================ */
 /* 댓글 작성 */
-/* .comment-write {
-    margin-bottom: 30px;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-} */
 .comment-write-box {
     display: flex;
     gap: 12px;

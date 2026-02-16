@@ -32,7 +32,6 @@ document.getElementById("optionBtn").addEventListener('click', function() {
         //profileImg: window.profileImg,
         //beansAmount: window.beansAmount        
         // more variables
-
     };    
 
     if (selectedValue === "basic") {
@@ -48,10 +47,6 @@ document.getElementById("optionBtn").addEventListener('click', function() {
         url = "/api/chatbot/freeboard/popupBasicChatbot";
         pWinName = "win-basic";
         win_basic = window.open(url, pWinName, "width=650,height=760");
-        //async function openChatbotWithDelay() { // not-working here
-    	//	await delay(300); // 300ms loginMember 정보체크(/api/auth/me) 시간주기 
-        //	win_basic = window.open(url, pWinName, "width=650,height=760");
-        //}
     } else if (selectedValue === "kong") {
         // win_basic 닫기
         if (win_basic && !win_basic.closed) {
@@ -65,10 +60,6 @@ document.getElementById("optionBtn").addEventListener('click', function() {
         url = "/api/chatbot/freeboard/popupKongChatbot";
         pWinName = "win-kong";
         win_kong = window.open(url, pWinName, "width=650,height=760");
-        //async function openChatbotWithDelay() { // not-working here
-    	//	await delay(300); // 300ms loginMember 정보체크(/api/auth/me) 시간주기     
-        //	win_kong = window.open(url, pWinName, "width=650,height=760");
-        //}
     }
 
 });

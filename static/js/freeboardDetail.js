@@ -25,10 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log("window.location 객체 = ", window.location);  // http://localhost:8880/board/43
     //console.log("window.location.pathname 문자열 = ", window.location.pathname);  //  http://localhost:8880/board/43
     //console.log("window.location.search = ", window.location.search);  // empty 
-    // const urlParams = new URLSearchParams(window.location.search); 
-    // console.log("urlParams", urlParams);
-    // boardNo = urlParams.get('no');
-    //
 
     // const pathParts = window.location.pathname.split("/");
     // const boardNo = pathParts[pathParts.length - 1];
@@ -58,10 +54,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 /**
  * 게시글 상세 로드
  */
-// async function loadBoardDetail() {
 async function loadBoardDetail(boardNo) {
     const article = document.getElementsByClassName('board-article')[0];
-    // const article = document.getElementById('boardArticle');
 
     // 로딩 표시
     article.innerHTML = `
@@ -72,7 +66,6 @@ async function loadBoardDetail(boardNo) {
     `;
 
     try {
-        // const response = await fetchAPI(`/api/board/freeboard/${boardNo}`);
         const response = await fetchAPI(`/api/board/ajax/detail/${boardNo}`);
 
         if (!response.ok) {
@@ -84,7 +77,6 @@ async function loadBoardDetail(boardNo) {
         //console.log("fetched board-detail boardData.board = ", boardData.board);
         //console.log("fetched board-detail boardData.board.author = ", boardData.board.author);
         renderBoardDetail(boardData);
-        // renderBoardDetail(boardData.board);
 
     } catch (error) {
         console.error('게시글 로드 오류:', error);
@@ -101,7 +93,6 @@ async function loadBoardDetail(boardNo) {
 /**
  * 게시글 상세 렌더링
  */
-// function renderBoardDetail(board) {
 function renderBoardDetail(boardData) {
     const article = document.getElementById('boardArticle');
     console.log("fetched board-detail boardData.board = ", boardData.board);
@@ -198,17 +189,9 @@ function renderBoardDetail(boardData) {
     `;
 
     // 댓글 개수 업데이트
-    // document.getElementById('commentCount').textContent = board.comment_count;
     document.getElementById('commentCount').textContent = boardData.comment_count;
 }
 
-/**
- * 좋아요 토글 (freeboardDetail.html하단 script부분에 구현)
- */
-// async function toggleLike(boardNo) {
-//     alert('좋아요 기능은 다음 단계에서 구현됩니다.');
-//     // TODO: API 호출
-// }
 
 /**
  * 목록으로 이동
@@ -300,24 +283,13 @@ function base64UrlDecode(str) { // JWT payload가 -(dash), __(underscore)포함�
 }
 
 function getCurrentUserInfo() {
-    // localStorage.setItem('access_token', data.access_token);
-    // localStorage.setItem('loginMember', JSON.stringify(data));
-    // const token = localStorage.getItem('accessToken');
     const token = localStorage.getItem('access_token'); // JWT (JSON Web Token)
     console.log("getCurrentUserInfo: token =", token); // 세션만료되면 access_token사라지고, 로그인 안된상태라 token = undefined됨
-    //if (!token) return null; // token이 undefined경우 커버못함
     if (typeof token !== "string" || token.trim() === "") return null; // null, undefined, 빈문자열, 공백문자열 다 차단
 
 
-    // const loginMember = localStorage.getItem('loginMember'); // JWT (JSON Web Token)
 
-    //if (typeof token == "string")
     try {
-        // // atob(base64String): Base64 → 일반 문자열로 디코딩
-        // // const payload = JSON.parse(atob(loginMember.split('.')[1])); // JWT는 구조가 항상 3조각 -> header.payload.signature
-        // const payload = JSON.parse(atob(token.split('.')[1])); // JWT는 구조가 항상 3조각 -> header.payload.signature
-        // console.log("getCurrentUserInfo: payload =", payload);
-
         // JWT payload가 -(dash), __(underscore)포함한경우 Base64불가, Base64URL써야함
         const base64Payload = token.split('.')[1];
         console.log("base64Payload =", base64Payload); 
@@ -327,9 +299,6 @@ function getCurrentUserInfo() {
         console.log("payload =", payload);
 
         return {
-            // memberNo: payload.memberNo,
-            // memberEmail: payload.memberEmail,
-            // memberNickname: payload.memberNickname
             memberNo: payload.member_no,
             memberEmail: payload.sub            
         };

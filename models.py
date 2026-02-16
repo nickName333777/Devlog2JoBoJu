@@ -11,7 +11,6 @@ from datetime import datetime
 from sqlalchemy import Sequence # 생성한 SEQ_TABLE__NO  자동삽입용
 
 from sqlalchemy.sql import func
-#from database import Base # from sqlalchemy.ext.declarative import declarative_base 에 Base 있음
 
 Base = declarative_base()
 
@@ -36,7 +35,6 @@ class Member(Base):
     __tablename__ = "MEMBER"
     
     # PK
-    #member_no = Column("MEMBER_NO", Integer, primary_key=True, autoincrement=True)
     member_no = Column("MEMBER_NO", Integer, Sequence("SEQ_MEMBER_NO"), primary_key=True, autoincrement=True)  # SEQ_MEMBER_NO 자동증가
     # 로그인 정보
     member_email = Column("MEMBER_EMAIL", String(30), nullable=False, unique=True)
@@ -87,7 +85,6 @@ class Auth(Base):
     """이메일 인증 테이블"""
     __tablename__ = "AUTH"
     
-    #auth_no = Column("AUTH_NO", Integer, primary_key=True, autoincrement=True)
     auth_no = Column("AUTH_NO", Integer, Sequence("SEQ_AUTH_NO"), primary_key=True, autoincrement=True)
     code = Column("CODE", String(100), nullable=False)
     email = Column("EMAIL", String(100), nullable=False, unique=True)
@@ -98,7 +95,6 @@ class SocialLogin(Base):
     """소셜 로그인 테이블"""
     __tablename__ = "SOCIAL_LOGIN"
     
-    #social_no = Column("SOCIAL_NO", Integer, primary_key=True, autoincrement=True)
     social_no = Column("SOCIAL_NO", Integer,  Sequence("SEQ_SOCIAL_LOGIN_NO"), primary_key=True, autoincrement=True)
     provider = Column("PROVIDER", String(30), nullable=False)
     provider_id = Column("PROVIDER_ID", String(100), nullable=False)
@@ -135,7 +131,6 @@ class Board(Base):
     __tablename__ = 'BOARD'
     
     # PK
-    #board_no = Column('BOARD_NO', Integer, primary_key=True)
     board_no = Column('BOARD_NO', Integer, Sequence("SEQ_BOARD_NO"), primary_key=True)
         
     # 게시글 정보
@@ -178,7 +173,6 @@ class BoardImg(Base):
     """게시글 이미지 테이블"""
     __tablename__ = 'BOARD_IMG'
     
-    #img_no = Column('IMG_NO', Integer, primary_key=True)
     img_no = Column('IMG_NO', Integer, Sequence("SEQ_IMAGE_NO"), primary_key=True)    
     img_path = Column('IMG_PATH', String(500), nullable=False)
     img_orig = Column('IMG_ORIG', String(200))
@@ -210,7 +204,6 @@ class Comment(Base):
     __tablename__ = 'COMMENTS'
     
     # PK
-    #comment_no = Column('COMMENT_NO', Integer, primary_key=True)
     comment_no = Column('COMMENT_NO', Integer, Sequence("SEQ_COMMENT_NO"), primary_key=True)
         
     # FK
@@ -256,7 +249,6 @@ class CbSession(Base):
     # PK     
     cb_session_id = Column('CB_SESSION_ID',
         Integer,
-        #Sequence('SEQ_CB_SESSION_NO', start=1, increment=1), #####
         Sequence('SEQ_CB_SESSION_NO'), #####
         primary_key=True,
         comment='챗봇세션식별자'
@@ -329,7 +321,6 @@ class CbTokenUsage(Base):
     # PK
     tk_usage_id = Column('TK_USAGE_ID',
         Integer,
-        #Sequence('SEQ_TOKEN_USAGE_NO', start=1, increment=1), #####
         Sequence('SEQ_TOKEN_USAGE_NO'), #####
         primary_key=True,
         comment='토큰사용이력식별자'

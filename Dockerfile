@@ -1,14 +1,4 @@
-# Python 3.10 베이스 이미지
-# 슬림 버전 (이전 사용-> issue로 사용중지) - 최소화된 이미지 (~120MB)
-#FROM python:3.10-slim
-#
-# 풀 버전 (모든 유틸리티 포함) - ~900MB
 FROM python:3.10
-#또는 더 구체적으로:
-# Debian 기반 풀 버전
-#FROM python:3.10-bullseye
-# Ubuntu 기반 풀 버전  
-#FROM python:3.10-focal
 
 RUN apt-get update && apt-get install -y \
     iputils-ping curl net-tools vim htop \
@@ -16,13 +6,6 @@ RUN apt-get update && apt-get install -y \
 
 # 작업 디렉토리 설정
 WORKDIR /app
-
-# Oracle Instant Client 설치를 위한 필수 패키지
-# libaio 심볼릭 링크 **정확히 이렇게* 
-#    && ln -sf /usr/lib/x86_64-linux-gnu/libaio1t64.so.1 /usr/lib/x86_64-linux-gnu/libaio.so.1 \ # Wrong
-#    && ln -sf /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1 \  # Correct
-#    && ln -sf /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so \ # Correct
-#    && ldconfig \  
     
 RUN apt-get update && apt-get install -y \
     wget \

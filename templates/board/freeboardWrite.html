@@ -16,7 +16,6 @@
     <!-- 글작성 도우미: 챗봇 -->
     <div class="helper-box">
         <div class="option-bar">
-            <!-- <button type="button" class="option-btn" onclick="openChatbotType()">글작성 도우미 챗봇 옵션</button> -->
             <button type="button" class="option-btn" id="optionBtn" >글작성 도우미 챗봇 선택</button>
             <div class="select-box">
                 <select class="option-select" id="chatbotType">
@@ -178,7 +177,6 @@ function removeImage(index) {
 
 // 폼 제출 전 검증
 document.addEventListener("DOMContentLoaded", () => {
-    //document.querySelector('.write-form').addEventListener('submit', (e) => {
     const form = document.querySelector('.write-form');
     if (form){
         form.addEventListener('submit', (e) => {
@@ -206,10 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 console.log("SCRIPT DEBUG...1");
 // Jinja2 변수 → JS 전역 변수
-// 숫자인 경우 const X = {{ x }};
-// 문자열인 경우 const X = "{{ x }}";
-//
-
 {% if false %} 
 // // 서버에서 렌더링된 member_no를 JS 전역변수로 선언
 //const MEMBER_NO = {{ current_user['member_no'] }}; // 숫자는 XSS 에 안전, Jinja2가 숫자를 그대로 치환, 아래 링크되는 js에서 MEMBER_NO 전역변수 접근 가능
@@ -225,7 +219,6 @@ console.log("SCRIPT DEBUG...1");
 {% endif %}
 // 또는 조건문으로 보호
 {% if current_user and current_user.member_nickname %}
-    // current_user = Depends(login_required), # Session; in board_write_router.py
     window.loginMemberNo = {{ current_user['member_no'] }};
     //window.memberNickname = {{ current_user['member_nickname'] }}; 
     window.memberNickname = {{ current_user.get('member_nickname') | tojson }}; 
@@ -239,7 +232,6 @@ console.log("SCRIPT DEBUG...1");
     window.beansAmount = null;
 {% endif %}
 console.log("freeboardWrite.html에서 JS 전역변수 등록:", {
-    //MEMBER_NO: MEMBER_NO,
     //boardNo: window.boardNo, 
     loginMemberNo: window.loginMemberNo,
     memberNickname: window.memberNickname,

@@ -4,7 +4,6 @@ Request/Response 데이터 검증 및 직렬화
 """
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
-# from typing import Literal
 from datetime import datetime
 
 
@@ -102,7 +101,6 @@ class BoardListResponse(BaseModel):
 class CommentBase(BaseModel):
     """댓글 기본 스키마"""
     comment_content: str = Field(..., max_length=2000, description="댓글 내용")
-    #secret_yn: str = Field(default='N', regex='^[YN]$', description="비밀댓글 여부") # pydantic v1
     secret_yn: str = Field(default='N', pattern='^[YN]$', description="비밀댓글 여부") # pydantic v2
 
 
@@ -164,9 +162,7 @@ class BoardLikeResponse(BaseModel):
 class BoardSearchParams(BaseModel):
     """게시글 검색 파라미터"""
     keyword: Optional[str] = None
-    #search_type: str = Field(default='title', regex='^(title|content|author|all)$') # pydantic v1
     search_type: str = Field(default='title', pattern='^(title|content|author|all)$') # pydantic v2
-    #sort_by: str = Field(default='recent', regex='^(recent|views|likes)$')
     sort_by: str = Field(default='recent', pattern='^(recent|views|likes)$')
     page: int = Field(default=1, ge=1)
     limit: int = Field(default=10, ge=1, le=50)

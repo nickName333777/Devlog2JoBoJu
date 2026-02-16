@@ -72,7 +72,6 @@ function checkBeansAndStartSession() {
 
         // beansAmount ==> Uncaught ReferenceError: can't access lexical declaration 'beansAmount' before initialization ('/api/auth/me'에 delay있다)
         const beansAmount = window.beansAmount || 0; // 이거는 not-working 초기에 0 why? fbChatbotRevKong.html에서 설정 delay?
-        //const beansAmount = beansAmount || 0; // 이거도 not-working, fbChatbotRevKong.html에서 설정 전역변수값 설정 delay?
         
         if (beansAmount <= 0) {
             alert(`커피콩 잔액이 ${beansAmount}입니다.\n커피콩충전형 챗봇은 커피콩 충전 후 이용해 주세요.`);
@@ -117,9 +116,6 @@ function startChatbotSession() {
     });
     
     const requestData = {
-        // cbSessionType: chatbotType.toUpperCase(),  // BASIC, KONG
-        // cbBoardType: cbBoardType,                   // INSERT, UPDATE
-        // boardNo: window.boardNo || null
         // for Request body of CbSessionCreate in fetch('/api/chatbot/session/start')
         cb_session_type: chatbotType.toUpperCase(),  // BASIC, KONG
         cb_board_type: cbBoardType,                   // INSERT, UPDATE
@@ -378,7 +374,6 @@ function addUserMessage(text) {
     row.className = "chat-row right";
 
     const nickname = window.memberNickname || "유저";
-    // const userProfileImg = window.profileImg || "/static/images/user.png";
     const userProfileImg = profileImg || "/static/images/user.png";
     console.log("### window.profileImg = ", window.profileImg);
     console.log("### profileImg = ", profileImg);

@@ -237,12 +237,6 @@
     opacity: 0.5;
 }
 
-/* 이미지 arrow고려해볼것 */
-/* .page-btn.page-arrow{
-    font-size: 16px !important;
-    color: red; 
-} */
-
 /* 빈 목록 */
 .empty-list {
     text-align: center;

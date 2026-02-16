@@ -87,7 +87,6 @@ async def toggle_like(
             content={"code": "DATA_001", "message": "게시글을 찾을 수 없습니다."}
         )
     
-    #member_no = current_user['memberNo']
     member_no = current_user['member_no']    
     
     # 기존 좋아요 조회
@@ -129,7 +128,6 @@ async def toggle_like(
 @router.get("/ajax/{board_no}/comments")
 async def get_comments(
     board_no: int,
-    #current_user = Depends(get_current_user_optional), # JWT
     current_user = Depends(login_required), # Session
     db: Session = Depends(get_db)
 ):
@@ -242,7 +240,6 @@ async def get_comments(
 async def create_comment(
     board_no: int,
     request: Request,
-    #current_user = Depends(get_current_user_optional), # JWT
     current_user = Depends(login_required), # Session
     db: Session = Depends(get_db)
 ):
@@ -309,7 +306,6 @@ async def create_comment(
     # 댓글 생성
     new_comment = Comment(
         comment_content=comment_content,
-        #member_no=current_user['memberNo'],
         member_no=current_user['member_no'],
         board_no=board_no,
         parents_comment_no=parents_comment_no,
@@ -321,7 +317,6 @@ async def create_comment(
     db.refresh(new_comment)
     
     # 생성된 댓글 정보 반환
-    #author = db.query(Member).filter(Member.member_no == current_user['memberNo']).first()
     author = db.query(Member).filter(Member.member_no == current_user['member_no']).first()
         
     return JSONResponse(
@@ -349,7 +344,6 @@ async def create_comment(
 async def update_comment(
     comment_no: int,
     request: Request,
-    #current_user = Depends(get_current_user_optional), # JWT
     current_user = Depends(login_required), # Session
     db: Session = Depends(get_db)
 ):
@@ -385,7 +379,6 @@ async def update_comment(
         )
     
     # 작성자 체크
-    #if comment.member_no != current_user['memberNo']:
     if comment.member_no != current_user['member_no']:    
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -411,7 +404,6 @@ async def update_comment(
 @router.delete("/ajax/comments/{comment_no}")
 async def delete_comment(
     comment_no: int,
-    #current_user = Depends(get_current_user_optional), # JWT
     current_user = Depends(login_required), # Session
     db: Session = Depends(get_db)
 ):
@@ -441,7 +433,6 @@ async def delete_comment(
         )
     
     # 작성자 체크
-    #if comment.member_no != current_user['memberNo']:
     if comment.member_no != current_user['member_no']:    
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN,

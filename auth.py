@@ -8,7 +8,6 @@ from fastapi import Depends, HTTPException, status
 
 from passlib.context import CryptContext  # for pwd encrypt
 from fastapi.security import OAuth2PasswordBearer # for 정적렌더링시 혹은 그냥 first 인가관리 방법 
-#from sqlalchemy.orm import Session
 
 import os
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials # for jinja2 + HTMLResponse? 혹은 그냥 second 인가관리 방법
@@ -16,9 +15,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials # for jinj
 
 
 # 환경변수로 관리해야 할 값들
-# SECRET_KEY = "your-secret-key-change-this-in-production"
 ACCESS_TOKEN_EXPIRE_MINUTES =int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
-# ACCESS_TOKEN_EXPIRE_DAYS = int(os.getenv("ACCESS_TOKEN_EXPIRE_DAYS", "7")) # 24 사간 * 7
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 
@@ -34,14 +31,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/member/login")  # for 정적렌�
 # 저수준의 일반적인 HTTP Bearer 인증 스키마, OAuth2를 전제로 하지 않고, 그냥 “Authorization: Bearer <token>” 형식인지 검사하고, <token>을 꺼내 HTTPAuthorizationCredentials 객체로 넘겨 줍
 security = HTTPBearer() #  for jinja2 + HTMLResponse? 혹은 그냥 second 인가관리 방법
 
-
-# def verify_password(plain_password: str, hashed_password: str) -> bool:
-#     """비밀번호 검증"""
-#     return pwd_context.verify(plain_password, hashed_password)
-#
-# def get_password_hash(password: str) -> str:
-#     """비밀번호 해싱"""
-#     return pwd_context.hash(password)
 
 ##### bcrypt 3.2.2 의 72바이트 제한 방어 (bcrypt는 무조건 72 byte 제한필요 아니면 제한없는 argon2-cffi 해시알고리즘사용 )
 MAX_BCRYPT_LEN = 72
@@ -63,7 +52,6 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None): 
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        # expire = datetime.utcnow() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
     
     to_encode.update({"exp": expire})
     print("SECRET_KEY:", SECRET_KEY, type(SECRET_KEY))
@@ -83,7 +71,7 @@ def decode_token(token: str): # jose JWT
     except JWTError:
         return None
 
-async def get_current_user(token: str = Depends(oauth2_scheme)): # oauth2_scheme for 정적렌더링시 or kakao login 혹은 그냥 first 인가관리 방법 
+async def get_current_user(token: str = Depends(oauth2_scheme)): 
     """현재 로그인한 사용자 정보 가져오기"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -119,7 +107,7 @@ def verify_token(token: str) -> dict: # 위에 decode_token(token: str)과 결�
         )
 
 
-def get_current_user2(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict: #  security for jinja2 + HTMLResponse? 혹은 그냥 second 인가관리 방법
+def get_current_user2(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict: 
     """
     현재 로그인한 사용자 정보 가져오기 (필수):  HTTPAuthorizationCredentials 로 부터 가져온다 -> 그러면 localStrorage에 저장된 loginMember, access_code와는 어떤 관계?
     로그인하지 않은 경우 401 에러 발생
@@ -135,16 +123,14 @@ def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials
     로그인하지 않은 경우 None 반환 (401에러 발생않시킨다는 말)
     - GET/POST 모두 안전
     """
-    #if credentials is None:
     if credentials is None or not credentials.credentials:    
         return None
     
     token = credentials.credentials # 요청에 담겨온 JWT token 
     try:
-        #token = credentials.credentials
         payload = verify_token(token) # 기존 토큰 검증
         return payload
-    #except HTTPException:
+    
     except Exception:
         # 토큰 검증 실패시에도 None 반환 (로그인 필요 없는 페이지용)
         return None

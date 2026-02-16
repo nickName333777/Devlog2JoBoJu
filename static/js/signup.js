@@ -244,7 +244,6 @@ memberName.addEventListener("input", () =>{
 const memberNickname = document.getElementById("memberNickname"); 
 const nicknameMessage = document.getElementById("nicknameMessage");
 
-//memberNickname.addEventListener("input", ()=> {
 memberNickname.addEventListener("input", async (e) => {
 
     // 입력된 닉네임이 없을 경우
@@ -264,7 +263,6 @@ memberNickname.addEventListener("input", async (e) => {
 
         //******************************************* */
         // fetch() API를 이용한 ajax
-        // //console.log("test : " + memberNickname.value)
         // console.log("test : ", memberNickname.value)
         
         // 요청주소 : /dupCheck/nickname
@@ -399,8 +397,6 @@ memberAdmin.addEventListener("change", () => {
             console.log("adminCode 체크 결과 = ", data)
 
             try {
-                //if (data != 0) {
-                //if (data.exists) {
                 if (data.result != 0) {
                     adminCodeMessage.innerText = "승인된 코드입니다."
                     adminCodeMessage.classList.add("confirm");

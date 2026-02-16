@@ -37,7 +37,6 @@
                     </ul>
                 </div>
                 
-                <!-- 로그인/사용자 메뉴 -->
                 <!-- 로그인/사용자 메뉴 by jinja2(SSR) 동적렌더링: "/member/login", "/member/signup"  -->
                 <div class="user-menu" id="userMenu">
                     <!-- 로그인 전 -->
@@ -50,7 +49,6 @@
                     <!-- 로그인 후: 실제 채워지는 로그인정보는 common.js(헤더내용담당)에서 동적으로 생성 -->
                     <div class="user-info" id="userInfo" style="display: none;">
                         <label for="userMenuToggle">
-                            <!-- <img src="/uploads{{ current_user.profile_img }}" alt="" class="user-profile-img-header" id="userProfileImgHeader">  "/uploads{{ current_user.profile_img }}"는 NS BINDING ABORTED 오류. 어차피 src=""는 common.js에서 동적생성 -->
                             <img src="" alt="" class="user-profile-img-header" id="userProfileImgHeader">
                             <span id="userNickname">사용자</span>
                             <i class="fa-solid fa-caret-down"></i>

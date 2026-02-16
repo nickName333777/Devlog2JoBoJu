@@ -37,7 +37,6 @@ from core.dependencies import login_required, admin_required
 
 router = APIRouter(prefix="/member", tags=["member"])
 
-#router_auth = APIRouter(prefix="/api/auth/", tags=["auth_me"]) # AssertionError: A path prefix must not end with '/', as the routes will start with '/'
 router_auth = APIRouter(prefix="/api/auth", tags=["auth_me"])
 
 router_session = APIRouter(prefix="/api/session", tags=["session_check"])
@@ -54,8 +53,6 @@ def check_session(request: Request):
 @router_auth.get("/me")
 async def get_current_user_info(
     request: Request,
-    #current_user: Member = Depends(get_current_user_optional) #  JWT
-    #current_user: Member = Depends(login_required) # Session 
 ):
     if request.session.get("user"): 
         print("########## LOGIN SESSION:", request.session["user"])
@@ -140,7 +137,6 @@ async def signup(
 
 ###################    
 # Jinja2 템플릿
-#from core.templates import templates
 # 템플릿 렌더링
 @router.get("/login") # 요청경로: "http://localhost:8880/member/login"
 def login_page(request: Request):   # 또는 login_page() of main.py에 FileResponse("templates/auth/login.html") 쓸수도있음
@@ -149,7 +145,6 @@ def login_page(request: Request):   # 또는 login_page() of main.py에 FileResp
         "request": request,
     })    
 
-# @router.post("/login", response_model=MemberLoginResponse)
 @router.post("/login", response_model=MemberLoginResponseMinimal)
 async def login(
     request: MemberLoginRequest,
@@ -260,26 +255,6 @@ async def login(
     print("########## LOGIN SESSION:", req.session["user"])
     
     # 응답 생성
-    # return MemberLoginResponse(
-    #     member_no=member.member_no,
-    #     member_email=member.member_email,
-    #     member_nickname=member.member_nickname,
-    #     role="ROLE_ADMIN" if member.member_admin == 'Y' else "ROLE_USER",
-    #     member_admin=member.member_admin,
-    #     member_subscribe=member.member_subscribe,
-    #     member_del_fl=member.member_del_fl,
-    #     member_career=member.member_career,
-    #     profile_img=member.profile_img,
-    #     my_info_intro=member.my_info_intro,
-    #     my_info_git=member.my_info_git,
-    #     my_info_homepage=member.my_info_homepage,
-    #     subscription_price=member.subscription_price,
-    #     beans_amount=member.beans_amount,
-    #     current_exp=member.current_exp,
-    #     m_create_date=member.m_create_date,
-    #     level=level_dto,
-    #     access_token=access_token # 유효 access_token 추가
-    # )
     return MemberLoginResponseMinimal( # JWT 토큰생성 후 최소 필요한 로그인정보들 넘겨줄때 (헤더 정보 경우) (Session 에 로그인정보 저장의 경우와 같다)
         member_no=member.member_no,
         member_email=member.member_email,
@@ -299,10 +274,6 @@ async def logout(req: Request):
     #response.delete_cookie(key="saveId", path="/") # 계속 saveId 남기려면 comment-out?
     return {"message": "로그아웃 성공"}
 
-#@router.post("/logout")
-#def logout(req: Request):
-#    req.session.clear()
-#    return {"message": "로그아웃 성공"}
 
 @router.get("/dupcheck/email", response_model=DupCheckResponse)
 async def check_email_duplicate(email: str, db: Session = Depends(get_db)):

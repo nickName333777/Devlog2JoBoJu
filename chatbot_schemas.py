@@ -163,7 +163,6 @@ class SessionStartResponse(BaseModel):
     success: bool
     session_id: int = Field(..., description="생성된 세션 ID", alias="sessionId")   # Pydantic validation error로 sqlalchemy.engine.Engine ROLLBACK 발생이슈가능
                                                                                     # front에서는 sessionId로 값처리하려고 하므로 alias 있어야함
-    #session_id: int = Field(..., description="생성된 세션 ID")
     message: str
     
     class Config:

@@ -1,12 +1,11 @@
 <header class="header" id="header">
     <div class="header-container">
         <div class="header-left">
-            <!-- <div class="logo">  -->
-                <a href="/"> <!-- a href="/index.html" 임  -->
-                    <img src="{{ url_for(request, 'static', path='/images/jbj_logo.png') }}" alt="JoBoJu Community" class="logo-img-header">
-                    <!-- <span class="logo-text">JoBoJu</span> -->
-                </a>
-            <!-- </div> -->
+
+            <a href="/"> <!-- a href="/index.html" 임  -->
+                <img src="{{ url_for(request, 'static', path='/images/jbj_logo.png') }}" alt="JoBoJu Community" class="logo-img-header">
+            </a>
+
             <!-- 검색 영역 -->
             <div class="search-area">
                 <input type="search" id="globalSearch" placeholder="검색어를 입력해주세요" autocomplete="off">
@@ -28,7 +27,6 @@
             </div>
             {% endif %}
 
-            <!-- 로그인/사용자 메뉴 -->
             <!-- 로그인/사용자 메뉴 by jinja2(SSR) or common.js(CSR) 동적렌더링: "/member/login", "/member/signup"  -->
             <div class="user-menu" id="userMenu">
                 
@@ -38,7 +36,6 @@
                     <label for="userMenuToggle">
                         <!-- 1) profile-img -->
                         {% if current_user.profile_img %}
-                        <!-- <p>{{ current_user.profile_img }}</p> 예시로 memberNo=2 버그헌터 프로필 /images/board/freeboard/cat1.jpg -->
                         <img src="/uploads{{ current_user.profile_img }}" alt="" class="user-profile-img-header" id="userProfileImgHeader">
                         {% else %}
                         <img src="{{ url_for(request, 'static', path='/images/user.png') }}" alt="프로필디폴트" class="user-profile-img-header" id="userProfileImgHeader">
@@ -62,7 +59,6 @@
                 <!-- {  % else %   }  -->
 
                 <!-- 로그인 전: loginMenu -->
-                <!-- {  % if not current_user %  }    not current_user가 None, False, 0, "", [], {} 는 cover하지만 undefined는 cover못함      -->
                 {% if current_user is not defined or not current_user %}
                 <div class="login-menu" id="loginMenu">
                     <a href="/member/login" class="btn-login-header">로그인</a>
@@ -83,8 +79,6 @@
             <li><a href="#">ITT</a></li>
             <li><a href="#">업계뉴스</a></li>                        
             <li><a href="{{ url_for(request, 'board_list') }}">자유게시판</a></li>
-            <!-- @router.get("/list", response_class=HTMLResponse, name="board_list")로 부터, url_for(request, 'board_list') = request.url_for('board_list') = /board/list 요청주소 의미 -->
-            <!-- 또는 directly, <li><a href="/board/list" class="btn-primary">게시판 보기</a></li> by board_router.py:  /templates/board/freeboardList.html -->
             <li><a href="/testMonitoringDashboard">모니터링 대시보드</a></li>
             <li><a href="#">데이터분석</a></li>
             <li><a href="#">ML/DL 모델링</a></li>

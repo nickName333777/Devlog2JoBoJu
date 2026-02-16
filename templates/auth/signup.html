@@ -10,7 +10,6 @@
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">     -->
 </head>
 <body>
-    <!-- <div id="header"></div> -->
     <!-- 헤더 -->
     {% include 'components/header.html' %}
 
@@ -92,7 +91,6 @@
                                 관리자 계정 신청
                             </label>
                             <div class="input-admin-code-wrapper">
-                                <!-- <label for="adminCode"> </label> -->
                                 <input type="text" name="adminCode" id="adminCode" class="input admin-code" 
                                     placeholder="관리자 계정 승인코드 입력">
                                 <p class="desc" id="adminCodeMessage"></p>
@@ -111,14 +109,11 @@
         </div>
     </main>
     
-    <!-- <div id="footer"></div> -->
     <!-- 푸터 -->
     {% include 'components/footer.html' %}
 
     <!-- 공통 JS -->
     <script src="{{ url_for(request, 'static', path='/js/common.js') }}"></script>        
-    <!-- <script src="/static/js/common.js"></script> -->
     <script src="{{ url_for(request, 'static', path='/js/signup.js') }}"></script> 
-    <!-- <script src="/static/js/signup.js"></script> -->
 </body>
 </html>

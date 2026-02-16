@@ -87,170 +87,26 @@
 --SELECT name, open_mode FROM v$pdbs;
 --
 --
------- [[[ Oracle 멀티테넌트 구조 ]]]
-----CDB (Container Database: XE)
-----├── PDB$SEED (템플릿)
-----├── XEPDB1 (기본 PDB)
-----├── XEPDB2 (새로 생성)
-----├── XEPDB3 (추가 생성)
-----└── ... XEPDBn
-----
---
------- [[[ docker-compose.yml의 FastAPI에서 각각 독립 연결 ]]]
-----# docker-compose.yml
-----services:
-----  fastapi-app1:
-----    environment:
-----      - DB_SERVICE=XEPDB1  # 1번째 앱
-----      - DB_USER=myapp1_user
-----
-----  fastapi-app2:
-----    environment:
-----      - DB_SERVICE=XEPDB2  # 2번째 앱  
-----      - DB_USER=myapp2_user
-----
-----  fastapi-app3:
-----    environment:
-----      - DB_SERVICE=XEPDB3  # 3번째 앱
-----      - DB_USER=myapp3_user
---
------- [[[ PDB별 독립성 ]]]
-----     완전 격리: 각 PDB는 독립된 스키마, 사용자, 데이터
-----     공유 CDB: 백업/복구/모니터링은 CDB에서 통합 관리
-----     Plug/Unplug: PDB 파일 복사로 이관 가능
-----     리소스 격리: CPU/메모리/스토리지 독립 할당 가능
---
---
------- [[[ PDB 관리 명령어 ]]]
------- 모든 PDB 목록
-----SHOW PDBS;
------- 특정 PDB 열기/닫기
-----ALTER PLUGGABLE DATABASE XEPDB1 OPEN;
-----ALTER PLUGGABLE DATABASE XEPDB1 CLOSE IMMEDIATE;
------- PDB 삭제
-----DROP PLUGGABLE DATABASE XEPDB1 INCLUDING DATAFILES;
------- PDB 복제
-----CREATE PLUGGABLE DATABASE XEPDB2 FROM XEPDB1;
---
---
---
 
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
--- ### 추천: 일반 작업용 연결은 PDB(XEPDB1) 사용 + 개발/관리용 연결은 SQL Developer로 관리
--- ['jbj_user'계정 젒속하여 init.sql 실행]
--------------------------------------------------------------------------------
----- SQL Developer로 XEPDB1의 사용자도 관리: 완전히 가능하고 권장
----- ## 📝 SQL Developer로 XEPDB1 접속 설정
---
---### 방법 1: 새 연결 추가 (PDB 전용)
---SQL Developer에서:
---```
---Connection Name: Oracle21c_XEPDB1
---Username: jbj_user
---Password: jbj_password1234
---Connection Type: Basic
---Hostname: localhost
---Port: 1521
---Service name: XEPDB1  ← 이게 중요!
---```
---또는
---```
---Connection Name: Oracle21c_XEPDB1_SID
---Username: jbj_user
---Password: jbj_password1234
---Connection Type: Basic
---Hostname: localhost
---Port: 1521
---SID: (체크하지 않음)
---Service name: XEPDB1
---```
---
---### 방법 2: TNS 방식
---`tnsnames.ora` 파일에 추가:
---```
---XEPDB1 =
---  (DESCRIPTION =
---    (ADDRESS = (PROTOCOL = TCP)(HOST = localhost)(PORT = 1521))
---    (CONNECT_DATA =
---      (SERVER = DEDICATED)
---      (SERVICE_NAME = XEPDB1)
---    )
---  )
---```
---SQL Developer 연결:
---```
---Connection Type: TNS
---Network Alias: XEPDB1
---Username: jbj_user
---Password: jbj_password1234
---```
---
---### 방법 3: Easy Connect
---SQL Developer 연결:
---```
---Connection Type: Custom JDBC
---Custom JDBC URL: jdbc:oracle:thin:@localhost:1521/XEPDB1
---Username: jbj_user
---Password: jbj_password1234
---
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 -- JBJ Database 초기화 스크립트
 
-
-
-
---DROP TABLE VIEW_LOG; -- MEMBER, BOARD, LEVELS
---DROP TABLE "USER_BEN";
---DROP TABLE "COFFEE_BEANS_HISTORY";
---DROP TABLE "MESSAGE_IMG";
---DROP TABLE "RECOMMEND_BOOKS";
---DROP TABLE "BLOG_TAG";
---DROP TABLE "COFFEE_BEANS_TRADE";
---DROP TABLE "JOB_POSTING"; 
---DROP TABLE "REPORT";
---DROP TABLE "COFFEE_BEANS_EXCHANGE";
---DROP TABLE "MESSAGE_EMOJI";
---DROP TABLE "FOLLOW";
 DROP TABLE "AUTH";
---DROP TABLE "COFFEE_BEANS_PAY";
---DROP TABLE "TAG";
---DROP TABLE "REPORT_CODE";
---DROP TABLE "CHATTING_USER";
---DROP TABLE "CAFE_IMAGE";
---DROP TABLE "MESSAGE";
---DROP TABLE "COMMENT_LIKE";
---DROP TABLE "VISIT_COUNT";
 DROP TABLE "CB_TOKEN_USAGE";
---DROP TABLE "USER_SCRAP";
 DROP TABLE "SOCIAL_LOGIN";
 DROP TABLE "NOTIFICATION";
 DROP TABLE "BOARD_IMG";
 DROP TABLE "CB_SESSION";
---DROP TABLE "SUBSCRIBE";
 DROP TABLE "BOARD_LIKE";
---DROP TABLE "BANK_INFO";
---DROP TABLE "CAFE_REVIEW_KEYWORD";
---DROP TABLE "COMPANY_CODE";
---DROP TABLE "RECOMMEND_CAFES";
 DROP TABLE "COMMENTS";
---DROP TABLE "BLOG";
---DROP TABLE "EMOJI";
 DROP TABLE "BOARD";
---DROP TABLE "CHATTING_ROOM";
 DROP TABLE "BOARDTYPE";
 DROP TABLE "MEMBER";
 DROP TABLE "LEVELS";
 
  SELECT * FROM USER_CONSTRAINTS WHERE TABLE_NAME = "tabnam";
-
-
 
 
 -- LEVELS 테이블 생성
@@ -750,19 +606,6 @@ INSERT INTO MEMBER  VALUES (
 );
 
 
----- 1) 보드코드 테이블 데이터 추가 (앞에서 했음, redundant)
---INSERT INTO BOARDTYPE
---(BOARD_CODE, BOARD_NAME, PARENTS_BOARD_CODE)
---VALUES (1, 'ITT', NULL);
---
---INSERT INTO BOARDTYPE
---(BOARD_CODE, BOARD_NAME, PARENTS_BOARD_CODE)
---VALUES (2, 'IndustryNews', NULL);
---
---INSERT INTO BOARDTYPE
---(BOARD_CODE, BOARD_NAME, PARENTS_BOARD_CODE)
---VALUES (3, 'Freeboard', NULL);
-
 COMMIT;
 
 -------------------------------------------------------------------------------
@@ -918,59 +761,6 @@ BEGIN
     COMMIT;
 END;
 /
-
-
---INSERT INTO COMMENTS (
---    COMMENT_NO,
---    MEMBER_NO,
---    BOARD_NO,
---    PARENTS_COMMENT_NO,
---    C_CREATE_DATE,
---    COMMENT_CONTENT,
---    COMMENT_DEL_FL,
---    SECRET_YN,
---    MODIFY_YN
---) VALUES (
---    SEQ_COMMENT_NO.NEXTVAL,         -- 댓글 번호 시작
---    6,            -- 묘소연
---    7,         -- 게시글 번호
---    NULL,
---    SYSDATE - 3,
---    '글 잘 봤습니다. ^^',
---    'N',
---    'N',
---    'N'
---);
---
----- ===============================
----- 두 번째 부모 댓글
----- ===============================
---
---INSERT INTO COMMENTS (
---    COMMENT_NO,
---    MEMBER_NO,
---    BOARD_NO,
---    PARENTS_COMMENT_NO,
---    C_CREATE_DATE,
---    COMMENT_CONTENT,
---    COMMENT_DEL_FL,
---    SECRET_YN,
---    MODIFY_YN
---) VALUES (
---    SEQ_COMMENT_NO.NEXTVAL,
---    7,            -- 줌-옹
---    7,
---    NULL,
---    SYSDATE - 1,
---    '글 잘 봤습니다. ^^',
---    'N',
---    'N',
---    'N'
---);
-
-
-
-
 
 
 

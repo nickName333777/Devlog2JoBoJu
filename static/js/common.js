@@ -1,5 +1,5 @@
 // 공통 JavaScript 유틸리티
-// const API_BASE_URL = "http://localhost:8880"; // login.js, signup.js, main.js에서 중복설정 충돌 발생
+
 // 전역 설정 객체
 window.APP_CONFIG = window.APP_CONFIG || {
     API_BASE_URL: "http://localhost:8880",
@@ -30,12 +30,6 @@ window.fetchAPI = async function (url, options = {}) {
     return response;
 };
 
-
-// JS-CSR로 로그인 상태관리시 사용가능한 전역변수(index.html에서 세팅된 전역변수로, common.js가 index.html 로그인상태관리할때만 사용가능)
-// loginMemberNo 
-// memberNickname
-// profileImg
-// beansAmount
 
 // 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', () => {
@@ -97,7 +91,6 @@ function checkLoginStatus() {
         if (userInfo) {
             userInfo.style.display = 'block';
             if (userProfileImgHeader){
-                //userProfileImgHeader.src = loginMember.profile_img;
                 userProfileImgHeader.src = `/uploads${loginMember.profile_img}`;
             }
             if (userNickname) {
@@ -120,14 +113,9 @@ function checkLoginStatus() {
 
 // 로그인 상태 확인 및 UI 업데이트 by 서버 세션 메모리 ==> 별로 사용성이 않좋아 실사용은 안함
 function checkLoginStatusBySession() { 
-    // 
-    //const token = localStorage.getItem('access_token'); 
-    //const loginMember = JSON.parse(localStorage.getItem('loginMember') || 'null');
-    //
     const loginMemberNoSession = loginMemberNo; 
     const memberNicknameSession = memberNickname;
     const profileImgSession = profileImg;
-    //const beansAmountSession = beansAmount;
 
     // 로그인 상태에 따른 프론트 화면 동적구성(CSR)
     const loginMenu = document.getElementById('loginMenu'); // 로그인 전
@@ -146,7 +134,6 @@ function checkLoginStatusBySession() {
         if (userInfo) {
             userInfo.style.display = 'block';
             if (userProfileImgHeader){
-                //userProfileImgHeader.src = loginMember.profile_img;
                 userProfileImgHeader.src = profileImgSession;
             }
             if (userNickname) {

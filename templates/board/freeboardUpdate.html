@@ -73,8 +73,6 @@
             <div class="existing-images">
                 {% for image in images %}
                     <div class="existing-image-item" id="existingImage{{ image.img_order }}">
-                        <!-- <img src="{{ image.img_path }}" alt="{{ image.img_orig }}"> -->
-                        <!-- <p>{{ image.img_path }}{{ image.img_rename }}</p> -->
                         <img src="{{ image.img_path }}{{ image.img_rename }}" alt="{{ image.img_orig }}">
                         <div class="image-info">
                             <span class="image-name">{{ image.img_orig }}</span>
@@ -292,7 +290,6 @@ function removeImage(index) {
     input.files = dt.files;
     
     // 미리보기 재생성
-    //previewImages({ target: input });
     previewNewImages({ target: input });
 }
 // console.log("SCRIPT DEBUG...");
@@ -314,13 +311,11 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (!title) {
                 alert('제목을 입력해주세요.');
-                //e.preventDefault();
                 return;
             }
             
             if (!content) {
                 alert('내용을 입력해주세요.');
-                //e.preventDefault();
                 return;
             }
             
@@ -419,10 +414,6 @@ console.log("SCRIPT DEBUG...1");
 // ========================================
 // Jinja2 변수 → JS 전역 변수: 로그인 정보
 // ========================================
-// Jinja2 변수 → JS 전역 변수
-// 숫자인 경우 const X = {{ x }};
-// 문자열인 경우 const X = "{{ x }}";
-//
 
 {% if false %} 
 // // 서버에서 렌더링된 member_no를 JS 전역변수로 선언
@@ -447,11 +438,8 @@ console.log("SCRIPT DEBUG...1");
 {% endif %}
 
 {% if current_user and current_user.member_nickname %}
-    // current_user = Depends(login_required), # Session; in board_write_router.py
     window.loginMemberNo = {{ current_user['member_no'] }};
-    //window.memberNickname = {{ current_user['member_nickname'] }}; 
     window.memberNickname = {{ current_user.get('member_nickname') | tojson }}; 
-    //window.profileImg = {{ current_user['profile_img'] }}; 
     window.profileImg = {{ current_user.get('profile_img') | tojson }}; 
     window.beansAmount = {{ current_user['beans_amount'] }}; 
 {% else %}
@@ -462,7 +450,6 @@ console.log("SCRIPT DEBUG...1");
 {% endif %}
 
 console.log("freeboardUpdate.html에서 JS 전역변수 등록:", {
-    //MEMBER_NO: MEMBER_NO,
     boardNo: window.boardNo, 
     boardCode: window.boardCode, 
     boardTitle: window.boardTitle, 

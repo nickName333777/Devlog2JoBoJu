@@ -103,31 +103,7 @@ async function loadBoardList() {
 
         console.log("params: ", params);
 
-        //const response = await fetchAPI(`/api/board/freeboard/list?${params}`); // fetchAPI() in common.js
-        // const response = await fetchAPI(`/api/board/ajax/list?${params}`); // AJAX
-        const response = await fetch(`/api/board/ajax/list?${params.toString()}`);
-
-        // if (!response.ok) {
-        //     throw new Error('게시글 목록을 불러오는데 실패했습니다.');
-        // }
-
-        ///// => TypeError: NetworkError when attempting to fetch resource. 오류그대로. not-working
-        // const response = await fetch(`/api/board/ajax/list?${params.toString()}`, {
-        //     headers: {
-        //         "Accept": "application/json"  // AJAX임을 서버에 알림
-        //     },
-        //     credentials: "same-origin"       // 세션 쿠키 포함
-        // });
-
-        // if (!response.ok) {
-        //     if (response.status === 401) {
-        //         alert("로그인이 필요합니다.");
-        //         window.location.href = "/member/login";  // 로그인 페이지로 이동
-        //         return;
-        //     }
-        //     throw new Error(`서버 오류: ${response.status}`);
-        // }
-
+        const response = await fetch(`/api/board/ajax/list?${params.toString()}`); // AJAX
 
         const data = await response.json();
         
@@ -281,18 +257,11 @@ function goToPage(page) {
     loadBoardList();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-// function goToPage(event, page) {
-//     event.preventDefault(); // AJAX 중간에 화면전환위한 fetch 중단 (NS_BINDING_ABORTED)없이 완료위해 필요
-//     currentPage = page;
-//     loadBoardList();
-//     window.scrollTo({ top: 0, behavior: 'smooth' });
-// }
 
 /**
  * 상세 페이지 이동
  */
 function goToDetail(boardNo) {
-    // window.location.href = `/static/freeboardDetail.html?no=${boardNo}`; // CSR 정적렌더링, not-working anymore
     window.location.href = `/board/${boardNo}`; // jinja2 SSR 동적렌더링
 }
 

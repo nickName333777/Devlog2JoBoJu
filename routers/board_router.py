@@ -42,7 +42,6 @@ async def board_list_page(
     keyword: Optional[str] = Query(default=None, description="검색 키워드"),
     search_type: str = Query(default="title", regex="^(title|content|author|all)$"),
     sort_by: str = Query(default="recent", regex="^(recent|views|likes)$"),
-    #current_user = Depends(get_current_user_optional), # JWT
     current_user = Depends(login_required), # Session
     db: Session = Depends(get_db)
 ):
@@ -107,7 +106,6 @@ async def board_list_page(
             BoardImg.img_order == 0
         ).first()
         if first_image:
-            # thumbnail = f"/uploads{first_image.img_path}" # "uploads/images/board/freeboard/"
             thumbnail = f"/uploads{os.path.join(first_image.img_path, first_image.img_rename)}"
         
         # 좋아요 개수
@@ -158,15 +156,6 @@ async def board_list_page(
 
 @router_ajax.get("/ajax/list", response_model=BoardListResponse, name="board_ajax_list") # (FastAPI가 JSONResponse로 처리) 또는 return 에 JSONResponse(content={ })명시
 async def board_ajax_list_page(
-    # request: Request,
-    # page: int = Query(default=1, ge=1, description="페이지 번호"),
-    # limit: int = Query(default=7, ge=1, le=50, description="페이지당 개수"),
-    # keyword: Optional[str] = Query(default=None, description="검색 키워드"),
-    # search_type: str = Query(default="title", regex="^(title|content|author|all)$"),
-    # sort_by: str = Query(default="recent", regex="^(recent|views|likes)$"),
-    # #current_user = Depends(get_current_user_optional), # JWT
-    # current_user = Depends(login_required), # Session
-    # db: Session = Depends(get_db)
     page: int = 1,
     limit: int = 7,
     keyword: Optional[str] = None,
@@ -300,7 +289,6 @@ def board_to_dict(board: Board):
 async def board_detail_page(
     request: Request,
     board_no: int,
-    #current_user = Depends(get_current_user_optional),# JWT
     current_user = Depends(login_required), # Session
     db: Session = Depends(get_db)
 ):
@@ -329,7 +317,6 @@ async def board_detail_page(
     
     # 이미지 목록
     images = sorted(board.images, key=lambda x: x.img_order)
-    # image_list = [f"/uploads{img.img_path}" for img in images]
     image_list = [f"/uploads{os.path.join(img.img_path, img.img_rename)}" for img in images]
     
     # 좋아요 개수
@@ -342,7 +329,6 @@ async def board_detail_page(
     if current_user:
         is_liked = db.query(BoardLike).filter(
             BoardLike.board_no == board_no,
-            #BoardLike.member_no == current_user['memberNo']
             BoardLike.member_no == current_user['member_no']
         ).first() is not None
     
@@ -353,7 +339,6 @@ async def board_detail_page(
     ).scalar() or 0
     
     # 작성자 여부
-    #is_author = current_user and current_user['memberNo'] == board.member_no
     is_author = current_user and current_user['member_no'] == board.member_no
     
     # 템플릿 렌더링
@@ -378,7 +363,6 @@ async def board_detail_page(
 @router_ajax.get("/ajax/detail/{board_no}", name="board_ajax_detail") #
 async def board_ajax_detail_page(
     board_no: int,
-    #current_user = Depends(get_current_user_optional),# JWT
     current_user = Depends(login_required), # Session
     db: Session = Depends(get_db)
 ):
@@ -408,7 +392,6 @@ async def board_ajax_detail_page(
     
     # 이미지 목록
     images = sorted(board.images, key=lambda x: x.img_order)
-    # image_list = [f"/uploads{img.img_path}" for img in images]
     image_list = [f"/uploads{os.path.join(img.img_path, img.img_rename)}" for img in images]
     
     # 좋아요 개수
@@ -421,7 +404,6 @@ async def board_ajax_detail_page(
     if current_user:
         is_liked = db.query(BoardLike).filter(
             BoardLike.board_no == board_no,
-            #BoardLike.member_no == current_user['memberNo']
             BoardLike.member_no == current_user['member_no']
         ).first() is not None
     
@@ -432,7 +414,6 @@ async def board_ajax_detail_page(
     ).scalar() or 0
     
     # 작성자 여부
-    #is_author = current_user and current_user['memberNo'] == board.member_no
     is_author = current_user and current_user['member_no'] == board.member_no
     
     # JSON반환

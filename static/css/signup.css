@@ -12,13 +12,6 @@
 }
 
 .title {
-    /* HEX#344e41ff -> RGB(52, 78, 65) */
-    /* background: linear-gradient(
-        to right,
-        rgba(52, 78, 65, 1) 0%,
-        rgba(52, 78, 65, 0.75) 50%,
-        rgba(52, 78, 65, 0.5) 100%
-    ); */
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); /* common.css에 정의된 color변수 사용 */
     padding: 20px 40px;
     border-top-left-radius: 6px;
@@ -147,7 +140,6 @@
 
 /* 클릭 애니메이션 */
 .btn-gray {
-  /*transition: transform 0.15s ease, box-shadow 0.15s ease;*/
   transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-gray:active {
