@@ -166,6 +166,57 @@ docker compose down
 
 
 
+---
+### ** 기본기능 Porting 이후에 추가된 기능들 **
+위에서 Porting된 기본기능을 기반으로 해서 재생에너지 (태양광/풍력) 데이터 처리/분석/모델링 플랫폼 프로토타입을 개발 중에 있습니다.
+현재까지 추가된 기능은 아래와 같은데 이를 기반으로 정부 창업지원사업에 지원예정입니다.
+- 정부 창업 지원 사업 공고 목록 crawling 대시보드
+- 리서치 AI 에이전트
+- 태양광/풍력 OpenAPI 공공데이터 수집 대시보드
+- 데이터 분석 JupyterLab 서버 페이지
+- ML/DL 모델링 페이지 입니다.
+
+### **추가기능 예시화면:**
+1. 정부 창업 지원 사업 공고 목록 crawling 대시보드
+<img width="961" height="857" alt="image" src="https://github.com/user-attachments/assets/b530744b-485c-42bf-a04a-ef1d51488679" />
+
+2. 리서치 AI 에이전트
+<img width="865" height="834" alt="image" src="https://github.com/user-attachments/assets/df494f8c-3abf-4e71-ab87-4129586476ef" />
+<img width="819" height="852" alt="image" src="https://github.com/user-attachments/assets/eecb7965-88eb-48a5-b39f-4c5ea43365f5" />
+<img width="828" height="852" alt="image" src="https://github.com/user-attachments/assets/8f77f513-3f1a-4964-a784-f90c375ba484" />
+<img width="803" height="851" alt="image" src="https://github.com/user-attachments/assets/f078cd2d-ea95-4380-b4ae-2f941054e38f" />
+
+
+3. 태양광/풍력 OpenAPI 공공데이터 수집 대시보드
+<img width="1031" height="849" alt="image" src="https://github.com/user-attachments/assets/69b192b1-6c69-4a94-881b-3422dd1236a4" />
+<img width="1043" height="780" alt="image" src="https://github.com/user-attachments/assets/ce1a9110-5a01-4a00-a7ec-c06fe1b9fe5d" />
+<img width="1023" height="790" alt="image" src="https://github.com/user-attachments/assets/34d21f99-9a10-4e4f-a70c-8be3a5d9ba83" />
+
+
+4. 데이터 분석 JupyterLab 서버 페이지
+<img width="1169" height="846" alt="image" src="https://github.com/user-attachments/assets/43e99627-d333-4f90-89d4-102e32322934" />
+<img width="1134" height="822" alt="image" src="https://github.com/user-attachments/assets/8082c270-a4ac-4290-bd1e-e09ed046bfb8" />
+
+
+5. ML/DL 모델링 페이지 입니다.
+<img width="1038" height="848" alt="image" src="https://github.com/user-attachments/assets/215c537e-055e-4e78-866b-071dc2bcd659" />
+<img width="1017" height="759" alt="image" src="https://github.com/user-attachments/assets/801ce43b-79a7-4df1-b500-4f713e0dc52f" />
+<img width="1020" height="787" alt="image" src="https://github.com/user-attachments/assets/6db7bdb9-4d9a-4038-9c2a-fcb806e1b43d" />
+<img width="1024" height="778" alt="image" src="https://github.com/user-attachments/assets/dc5ee612-2d96-4acb-838b-b7f54233a8b8" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
